@@ -26,8 +26,6 @@ object Application extends Controller {
     Redirect("https://groups.google.com/forum/?fromgroups#!forum/so3foodforthought")
   }
 
-  def about = Action { Ok(views.html.about()) }
-
   def source = Action {
     Redirect("https://github.com/emchristiansen/FoodForThought")
   }

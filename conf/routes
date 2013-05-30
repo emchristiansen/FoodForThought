@@ -8,7 +8,6 @@ GET   /methods        controllers.Application.methods
 GET   /results        controllers.Application.results
 GET   /blog           controllers.Application.blog
 GET   /group          controllers.Application.group
-GET   /about          controllers.Application.about
 GET   /source         controllers.Application.source
 
 # Map static resources from the /public folder to the /assets URL path
