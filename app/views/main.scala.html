@@ -1,7 +1,7 @@
 @(title: String)(content: Html)
 
 @navbarItemHTML(navbarItem: String, navbarURL: String) = {
-  <li>
+  <li class=@{ if (title.contains(navbarItem)) "active" else "" }>
     <a href=@{s"${navbarURL}"}>@navbarItem</a>
   </li>
 }
@@ -29,12 +29,11 @@
     <div class="navbar-inner">
       <a class="brand" href="/">Food for Thought</a>
       <ul class="nav">
-        @navbarItemHTML("Home", "/")
         @navbarItemHTML("Methods", "methods")
         @navbarItemHTML("Results", "results")
         @navbarItemHTML("Blog", "blog")
         @navbarItemHTML("Mailing list", "group")
-        @navbarItemHTML("About", "about")
+        @navbarItemHTML("Source", "source")
       </ul>
     </div>	
   </div>

@@ -5,15 +5,14 @@ import play.api.mvc._
 import play.api.templates._
 
 object Application extends Controller {
-//  def markdownToHTML = Action {
-//    val asset = controllers.Assets.at(path="/public/markdown", "index.md")
-//    
-//    Html(new org.pegdown.PegDownProcessor().markdownToHtml(asset))
-//  }
+  //  def markdownToHTML = Action {
+  //    val asset = controllers.Assets.at(path="/public/markdown", "index.md")
+  //    
+  //    Html(new org.pegdown.PegDownProcessor().markdownToHtml(asset))
+  //  }
 
-  def markdownToHTML(markdown: String) =    
+  def markdownToHTML(markdown: String) =
     Html(new org.pegdown.PegDownProcessor().markdownToHtml(markdown))
-  
 
   def index = Action { Ok(views.html.index()) }
 
@@ -29,4 +28,7 @@ object Application extends Controller {
 
   def about = Action { Ok(views.html.about()) }
 
+  def source = Action {
+    Redirect("https://github.com/emchristiansen/FoodForThought")
+  }
 }
