@@ -21,7 +21,7 @@ object Application extends Controller {
   def results = Action { Ok(views.html.results()) }
 
   def blog = Action { Redirect("http://so3fft.blogspot.com") }
-
+                                                                                             ˜
   def group = Action {
     Redirect("https://groups.google.com/forum/?fromgroups#!forum/so3foodforthought")
   }
