@@ -15,28 +15,28 @@ Some common stocked foods are listed below.
 This list is constantly evolving, and <em>each lab member is individually empowered to make purchasing decisions</em>, so long as the cost is reasonable.
 
 * Fruit
-  * Bananas
-  * Mangoes
-  * Apples (Fuji)
-  * Strawberries
-  * Blueberries
-  * Blackberries
-  * Tomatoes
-  * Avocados
-  * Clementines
+	* Bananas
+	* Mangoes
+	* Apples (Fuji)
+	* Strawberries
+	* Blueberries
+	* Blackberries
+	* Tomatoes
+	* Avocados
+	* Clementines
 * Drinks
-  * Milk (organic)
-  * Soy milk (organic)
-  * A variety of Naked juices
-  * Coffee (organic)
+	* Milk (organic)
+	* Soy milk (organic)
+	* A variety of Naked juices
+	* Coffee (organic)
 * Sandwich fixings
-  * Bread (organic Alpine Valley Multi Grain with Omega-3)
-  * Peanut butter
-  * Jelly (organic)
-  * Sandwich meat (poultry)
-  * Cheese
-  * Mustard
-  * Smoked salmon (wild)
+	* Bread (organic Alpine Valley Multi Grain with Omega-3)
+	* Peanut butter
+	* Jelly (organic)
+	* Sandwich meat (poultry)
+	* Cheese
+	* Mustard
+	* Smoked salmon (wild)
 * Cereal (organic, lots of granola)
 * Greek yogurt
 
@@ -60,10 +60,10 @@ These items must be replenished:
 * Coffee filters
 * Disposable plates, bowls, cups, and utensils
 * Cleaning supplies
-  * Paper towels
-  * All-purpose cleaner
-  * Sponges
-  * Dish soap
+	* Paper towels
+	* All-purpose cleaner
+	* Sponges
+	* Dish soap
 
 ###Space
 
@@ -104,7 +104,7 @@ The DRI need not do all the work himself, but he is ultimately responsible that 
 The lab is clean if:
 
 * The surfaces are clean
-  * This includes the eating area and the shelves
+	* This includes the eating area and the shelves
 * The refrigerator is clean
 * The coffee machine is clean and empty of old coffee
 * The trash cans are not overflowing
@@ -133,9 +133,9 @@ Here are some examples of what members have spontaneously done to help:
 To request reimbursement for purchases, a lab member must do the following:
 
 * Add the purchase to the [expense spreadsheet](https://docs.google.com/spreadsheet/ccc?key=0Ahunb86VoFSEdEhyaEs2YjZTVTJZeHpENnE0VDJ4bWc#gid=0).
-  * Make sure your full name and email address are in the spreadsheet.
+	* Make sure your full name and email address are in the spreadsheet.
 * Add your receipt to the SO(3) Dropbox folder with path `Dropbox/SO(3)/FoodForThought/receipts`. Here's a [direct link](https://www.dropbox.com/sh/s1btw8o7pasm4o8/356_N6Q7W2).
-  * Please follow the file naming conventions.
-* Ask [Josh Hufziger](jhufziger@eng.ucsd.edu) to reimburse you, and cc Serge.
-  * Mark the date requested in the `reimbursement status` column of the [expense spreadsheet](https://docs.google.com/spreadsheet/ccc?key=0Ahunb86VoFSEdEhyaEs2YjZTVTJZeHpENnE0VDJ4bWc#gid=0).
+	* Please follow the file naming conventions.
+* Ask <a href="mailto:jhufziger@eng.ucsd.edu">Josh Hufziger</a> to reimburse you, and cc Serge.
+	* Mark the date requested in the `reimbursement status` column of the [expense spreadsheet](https://docs.google.com/spreadsheet/ccc?key=0Ahunb86VoFSEdEhyaEs2YjZTVTJZeHpENnE0VDJ4bWc#gid=0).
 * When you are paid, mark the reimbursment status as paid. 

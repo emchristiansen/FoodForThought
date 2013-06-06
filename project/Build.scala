@@ -15,7 +15,7 @@ object ApplicationBuild extends Build {
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     libraryDependencies ++= Seq(
-      "org.pegdown" % "pegdown" % "1.2.0"
+      "org.pegdown" % "pegdown" % "1.3.0"
     )
   )
 
