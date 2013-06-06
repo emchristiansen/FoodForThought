@@ -6,6 +6,7 @@
 GET   /               controllers.Application.index
 GET   /methods        controllers.Application.methods
 GET   /results        controllers.Application.results
+GET   /faq            controllers.Application.faq
 GET   /blog           controllers.Application.blog
 GET   /group          controllers.Application.group
 GET   /source         controllers.Application.source

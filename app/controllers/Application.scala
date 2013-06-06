@@ -27,6 +27,8 @@ object Application extends Controller {
   def methods = Action { Ok(views.html.methods()) }
 
   def results = Action { Ok(views.html.results()) }
+  
+  def faq = Action { Ok(views.html.faq()) }
 
   def blog = Action { Redirect("http://so3fft.blogspot.com") }
                                                                                              

@@ -37,6 +37,7 @@
       <ul class="nav">
         @navbarItemHTML("Methods", "methods")
         @navbarItemHTML("Results", "results")
+        @navbarItemHTML("FAQ", "faq")
         @navbarItemHTML("Blog", "blog")
         @navbarItemHTML("Mailing list", "group")
         @navbarItemHTML("Source", "source")
@@ -45,8 +46,10 @@
     </div>
   </div>
 
-<div id="wrapper" class="banner">
-    <img src="/assets/images/eating_panorama_retouched.jpg">
+<div id="wrapper" class="banner fullImage">
+    <a href="@routes.Assets.at("images/eating_panorama_retouched.jpg")">
+    	<img src="@routes.Assets.at("images/eating_panorama_retouched.jpg")">
+    </a>
 </div>
   
       <div class="container">  

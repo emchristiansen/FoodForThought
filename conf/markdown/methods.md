@@ -70,7 +70,32 @@ These items must be replenished:
 We put everything in the vision lab, a room which is lightly used for its lack of windows.
 Here are some photos:
 
-(TODO)
+<div class="row">
+  <div class="span4">
+    <div class="fullImage">
+      <a href="/assets/images/blog/stocked_food.jpg"> 
+      	<img src="/assets/images/blog/stocked_food.jpg">
+      </a>
+      <p>Pantry and fridge</p>
+    </div>
+  </div>
+  <div class="span4">
+    <div class="fullImage">
+      <a href="/assets/images/fridge_closeup.jpg"> 
+      	<img src="/assets/images/fridge_closeup.jpg">
+      </a>
+      <p>Fridge closeup</p>
+    </div>
+  </div>
+  <div class="span4">
+    <div class="fullImage">
+      <a href="/assets/images/disposable_plates_cropped.png"> 
+      	<img src="/assets/images/disposable_plates_cropped.png">
+      </a>
+      <p>Disposable eating ware</p>
+    </div>
+  </div>
+</div>
 
 ###Organization
 
