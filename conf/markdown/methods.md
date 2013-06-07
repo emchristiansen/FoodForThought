@@ -2,7 +2,14 @@
 
 We provide lunch and dinner on weekdays as well as always-available stocked food.
 Here we describe the food we buy, supporting materials we purchased, how we set up our space, the organization of labor, and how expenses are processed.
-All expenses are logged in the [expense spreadsheet](https://docs.google.com/spreadsheet/ccc?key=0Ahunb86VoFSEdEhyaEs2YjZTVTJZeHpENnE0VDJ4bWc#gid=0).
+Day-to-day operations are organized using spreadsheets for:
+
+* [Meal signups](https://docs.google.com/spreadsheet/ccc?key=0Ahunb86VoFSEdHlaTlZLWmdLZHh3LThMa2xRcG1jcEE&usp=sharing).
+See also [Food](#food).
+* [Volunteering](https://docs.google.com/spreadsheet/ccc?key=0Ahunb86VoFSEdHJjb0ZJbExKeFBFaVViOXZOczdRSmc&usp=sharing).
+See also [Organization](#organization).
+* [Expenses](https://docs.google.com/spreadsheet/ccc?key=0Ahunb86VoFSEdEhyaEs2YjZTVTJZeHpENnE0VDJ4bWc#gid=0).
+See also [Expenses](#expenses).
 
 <a id="food" href="#food" class="nameTag">
 ###Food
