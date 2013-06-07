@@ -111,11 +111,21 @@ Members can volunteer for any of these tasks using [this spreadsheet](https://do
 
 ####Costco food delivery
 
+<div class="fullImage">
+<iframe width="640" height="480" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://maps.google.com/maps?f=d&amp;source=s_d&amp;saddr=32.882975,-117.234263&amp;daddr=Costco+Morena,+Morena+Boulevard,+San+Diego,+CA&amp;hl=en&amp;geocode=FR_B9QEdqSUD-Q%3BFX3V9AEdDkoD-SEaiY3iA5wm9CmdZ4jDqQHcgDEaiY3iA5wm9A&amp;aq=1&amp;oq=costco&amp;sll=32.85258,-117.226827&amp;sspn=0.067778,0.049696&amp;mra=ltm&amp;ie=UTF8&amp;t=m&amp;ll=32.844404,-117.224464&amp;spn=0.138452,0.219727&amp;z=12&amp;output=embed"></iframe><br /><small><a href="http://maps.google.com/maps?f=d&amp;source=embed&amp;saddr=32.882975,-117.234263&amp;daddr=Costco+Morena,+Morena+Boulevard,+San+Diego,+CA&amp;hl=en&amp;geocode=FR_B9QEdqSUD-Q%3BFX3V9AEdDkoD-SEaiY3iA5wm9CmdZ4jDqQHcgDEaiY3iA5wm9A&amp;aq=1&amp;oq=costco&amp;sll=32.85258,-117.226827&amp;sspn=0.067778,0.049696&amp;mra=ltm&amp;ie=UTF8&amp;t=m&amp;ll=32.844404,-117.224464&amp;spn=0.138452,0.219727&amp;z=12" style="color:#0000FF;text-align:left">View Larger Map</a></small>
+<p>The route to Costco</p>
+</div>
+
 Stocked food must be purchased weekly from Costco.
 Generally, we make these runs on Fridays.
 Volunteers should have a Costco membership.
 
 ####Prepared food delivery
+
+<div class="fullImage">
+<iframe width="640" height="480" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://maps.google.com/maps?f=d&amp;source=s_d&amp;saddr=32.882975,-117.234263&amp;daddr=Whole+Foods+Market,+Villa+La+Jolla+Drive,+La+Jolla,+CA&amp;hl=en&amp;geocode=FR_B9QEdqSUD-Q%3BFZaJ9QEdMDMD-SF1Rq1izp7N2CmxktXqzQbcgDF1Rq1izp7N2A&amp;sll=32.875857,-117.233584&amp;sspn=0.01694,0.012424&amp;dirflg=w&amp;mra=ltm&amp;ie=UTF8&amp;t=m&amp;ll=32.875875,-117.233605&amp;spn=0.0173,0.027466&amp;z=15&amp;output=embed"></iframe><br /><small><a href="http://maps.google.com/maps?f=d&amp;source=embed&amp;saddr=32.882975,-117.234263&amp;daddr=Whole+Foods+Market,+Villa+La+Jolla+Drive,+La+Jolla,+CA&amp;hl=en&amp;geocode=FR_B9QEdqSUD-Q%3BFZaJ9QEdMDMD-SF1Rq1izp7N2CmxktXqzQbcgDF1Rq1izp7N2A&amp;sll=32.875857,-117.233584&amp;sspn=0.01694,0.012424&amp;dirflg=w&amp;mra=ltm&amp;ie=UTF8&amp;t=m&amp;ll=32.875875,-117.233605&amp;spn=0.0173,0.027466&amp;z=15" style="color:#0000FF;text-align:left">View Larger Map</a></small>
+<p>The route to Whole Foods</p>
+</div>
 
 Prepared food must be purchased daily by lunchtime.
 We generally go to the local Whole Foods, but the food runner can choose to shop anywhere.
