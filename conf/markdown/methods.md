@@ -95,8 +95,8 @@ Here are some photos:
   </div>
   <div class="span4">
     <div class="fullImage">
-      <a href="/assets/images/disposable_plates.png"> 
-      	<img src="/assets/images/disposable_plates.png">
+      <a href="/assets/images/disposable_plates.jpg"> 
+      	<img src="/assets/images/disposable_plates.jpg">
       </a>
       <p>Disposable eating ware</p>
     </div>
