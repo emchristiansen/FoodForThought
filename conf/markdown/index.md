@@ -1,7 +1,8 @@
 ##About
 
 Food for Thought (FFT) is an experiment by [SO(3)](http://vision.ucsd.edu/), the computer vision lab at UCSD, in providing free, healthy, food for lab members.
-Though [similar programs](http://jobs.aol.com/articles/2011/10/13/top-10-companies-for-employee-lunches/) [exist in industry](http://www.flickr.com/photos/brettlider/sets/154249/), this may be the first attempt to adapt the idea to academia.
+Though [similar](http://jobs.aol.com/articles/2011/10/13/top-10-companies-for-employee-lunches/) [programs](http://smallbusiness.aol.com/2011/04/25/survey-says-whats-the-secret-to-office-productivity-free-food/)
+[exist in industry](http://www.flickr.com/photos/brettlider/sets/154249/), this may be the first attempt to adapt the idea to academia.
 We expect this will substantially improve lab happiness, culture, and productivity at a near zero net cost for the lab and its members.
 
 This site tracks the progress of the experiment and may also be used as a starting point for similar initiatives.
