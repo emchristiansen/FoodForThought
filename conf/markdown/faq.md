@@ -21,7 +21,7 @@ The raw data for these estimates can be found in the [food signup](https://docs.
 
 The lunchtime run to Whole Food can be completed in around 30min on a bike; 15min for travel and 15min for selecting and purchasing food.
 The weekly Costco run can be completed in around 60-90min, where 30min is used for travel.
-Cleanup is usually done by the group and is thus quick; the Cleanliness DRI may spend 10min each day on average.
+Cleanup is usually done by the group and is thus quick; the Cleanliness <abbr title="Directly Responsible Individual">DRI</abbr> may spend 10min each day on average.
 
 <a id="catering" href="#catering" class="nameTag">
 ###Why don't we use a catering service?
