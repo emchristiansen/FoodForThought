@@ -3,13 +3,17 @@
 # ~~~~
 
 # Home page
-GET   /               controllers.Application.index
-GET   /methods        controllers.Application.methods
-GET   /results        controllers.Application.results
-GET   /faq            controllers.Application.faq
-GET   /blog           controllers.Application.blog
-GET   /group          controllers.Application.group
-GET   /source         controllers.Application.source
+GET    /               controllers.Application.getIndex
+GET    /methods        controllers.Application.getMethods
+GET    /results        controllers.Application.getResults
+GET    /faq            controllers.Application.getFAQ
+GET    /blog           controllers.Application.getBlog
+GET    /group          controllers.Application.getGroup
+GET    /source         controllers.Application.getSource
+
+GET    /login          controllers.Application.getLogin
+POST   /login          controllers.Application.postLogin
+GET    /greeting       controllers.Application.getGreeting
 
 # Map static resources from the /public folder to the /assets URL path
-GET   /assets/*file   controllers.Assets.at(path="/public", file)
+GET    /assets/*file   controllers.Assets.at(path="/public", file)
