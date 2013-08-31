@@ -64,52 +64,5 @@ object Application extends Controller {
     Redirect("https://github.com/emchristiansen/FoodForThought")
   }
 
-  val loginForm = Form(
-    tuple(
-      "email" -> email,
-      "password" -> nonEmptyText))
 
-  def getLogin = Action {
-    Ok(views.html.login(loginForm))
-  }
-
-  def postLogin = Action { implicit request =>
-    loginForm.bindFromRequest.fold(
-      // Binding failure.
-      formWithErrors => BadRequest(views.html.login(formWithErrors)),
-      // Binding success.
-      value => {
-        val (email, password) = value
-        println(email)
-        println(password)
-
-        Database.forDataSource(DB.getDataSource()).withSession {
-          if (MTable.getTables("users").list().isEmpty) Users.ddl.create
-          
-//          Users.
-
-          Users.insert(User(None, "Bob", email, password))
-          
-          for (user <- Query(Users)) {
-            println(user)
-          }
-        }
-
-        Redirect(routes.Application.getIndex).withSession("email" -> email)
-      })
-  }
-
-  def getGreeting = Action { implicit request =>
-    session.get("email") map { email =>
-      Database.forDataSource(DB.getDataSource()).withSession {
-        for (user <- Query(Users)) {
-            println(user)
-          }
-      }
-
-      Ok("Hi " + email)
-    } getOrElse {
-      Unauthorized("Who are you?")
-    }
-  }
 }
