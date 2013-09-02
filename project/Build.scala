@@ -13,9 +13,18 @@ object ApplicationBuild extends Build {
     anorm,
     "org.pegdown" % "pegdown" % "1.3.0",
     "com.typesafe.slick" %% "slick" % "1.0.1",
+    "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT",
     "securesocial" %% "securesocial" % "master-SNAPSHOT")
 
-  val main = play.Project(appName, appVersion, appDependencies).settings(
-    resolvers += Resolver.url("sbt-plugin-snapshots", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-snapshots/"))(Resolver.ivyStylePatterns))
+  val extraResolvers =
+    resolvers += Resolver.url(
+      "sbt-plugin-snapshots",
+      new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-snapshots/"))(
+        Resolver.ivyStylePatterns)
 
+  val main = play.Project(appName, appVersion, appDependencies).settings(
+    extraResolvers,
+    resolvers += Resolver.sonatypeRepo("snapshots"),
+    libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
+    scalaVersion := "2.10.2")
 }
