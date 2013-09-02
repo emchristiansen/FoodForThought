@@ -39,45 +39,75 @@ import json._
  * SocialUser a column, but there are _a lot_ of fields and I'd rather
  * just wait for Slick to make this automatic.
  */
-case class SocialUserJSON(uniqueID: Option[Long], json: String)
-
-object SocialUserJSONs extends Table[SocialUserJSON]("SocialUserJSONs") {
-  def uniqueID = column[Long]("uniqueID", O.PrimaryKey, O.AutoInc)
-
+object SocialUserJSONs extends Table[String]("SocialUserJSONs") {
   def json = column[String]("json")
 
-  def * = (uniqueID ?) ~ json <> (SocialUserJSON.apply _, SocialUserJSON.unapply _)
+  def * = json
 }
 
-case class TokenJSON(uniqueID: Option[Long], json: String)
-
-object TokenJSONs extends Table[TokenJSON]("TokenJSONs") {
-  def uniqueID = column[Long]("uniqueID", O.PrimaryKey, O.AutoInc)
-
+object TokenJSONs extends Table[String]("TokenJSONs") {
   def json = column[String]("json")
 
-  def * = (uniqueID ?) ~ json <> (TokenJSON.apply _, TokenJSON.unapply _)
+  def * = json
 }
+
+//case class JSONHelper[TableObjectType, ElementType](tableName: String, tableObject: TableObjectType) {
+//  def elements = Database.forDataSource(DB.getDataSource()).withSession {
+//    if (MTable.getTables(tableName).list().isEmpty) Nil
+//    else {
+//      val strings = Query(tableObject).list
+//      for (string <- stringss) yield string.unpickle[ElementType]
+//    }
+//  }
+//}
 
 /**
  * A persistent user service.
  */
 class PersistentUserService(application: Application) extends UserServicePlugin(application) {
-  //  private var tokens = Map[String, Token]()
-
   def users: Seq[SocialUser] = Database.forDataSource(DB.getDataSource()).withSession {
     if (MTable.getTables("SocialUserJSONs").list().isEmpty) Nil
     else {
-      val jsons = Query(SocialUserJSONs).list
-      for (SocialUserJSON(_, json) <- jsons) yield json.unpickle[SocialUser]
+      for (json <- Query(SocialUserJSONs).list) yield json.unpickle[SocialUser]
     }
   }
 
-  def addUser(user: SocialUser) {
+  def insertUser(user: SocialUser) {
     Database.forDataSource(DB.getDataSource()).withSession {
       if (MTable.getTables("SocialUserJSONs").list().isEmpty) SocialUserJSONs.ddl.create
 
-      SocialUserJSONs.insert(SocialUserJSON(None, user.pickle.toString))
+      SocialUserJSONs.insert(user.pickle.toString)
+    }
+  }
+
+  def deleteUser(user: SocialUser) {
+    Database.forDataSource(DB.getDataSource()).withSession {
+      if (MTable.getTables("SocialUserJSONs").list().isEmpty) SocialUserJSONs.ddl.create
+
+      SocialUserJSONs.filter(_.json.toString.unpickle[SocialUser] == user).delete
+    }
+  }
+
+  def tokens: Seq[Token] = Database.forDataSource(DB.getDataSource()).withSession {
+    if (MTable.getTables("TokenJSONs").list().isEmpty) Nil
+    else {
+      for (json <- Query(TokenJSONs).list) yield json.unpickle[Token]
+    }
+  }
+
+  def insertToken(user: Token) {
+    Database.forDataSource(DB.getDataSource()).withSession {
+      if (MTable.getTables("TokenJSONs").list().isEmpty) TokenJSONs.ddl.create
+
+      TokenJSONs.insert(user.pickle.toString)
+    }
+  }
+
+  def deleteToken(user: Token) {
+    Database.forDataSource(DB.getDataSource()).withSession {
+      if (MTable.getTables("TokenJSONs").list().isEmpty) TokenJSONs.ddl.create
+
+      TokenJSONs.filter(_.json.toString.unpickle[Token] == user).delete
     }
   }
 
@@ -98,35 +128,33 @@ class PersistentUserService(application: Application) extends UserServicePlugin(
 
   def save(user: Identity): Identity = user match {
     case socialUser: SocialUser =>
-      addUser(socialUser)
+      insertUser(socialUser)
       user
     case _ => sys.error("Identity isn't a SocialUser")
   }
 
   def save(token: Token) {
-    Database.forDataSource(DB.getDataSource()).withSession {
-      if (MTable.getTables("TokenJSONs").list().isEmpty) TokenJSONs.ddl.create
-      
-      TokenJSONs.insert(TokenJSON(None, token.pickle.toString))
-    }
+    insertToken(token)
   }
 
-  def findToken(token: String): Option[Token] = {
-
-    tokens.get(token)
+  def findToken(uuid: String): Option[Token] = {
+    tokens.find(_.uuid == uuid)
   }
 
   def deleteToken(uuid: String) {
-
-    tokens -= uuid
+    for (token <- findToken(uuid)) {
+      deleteToken(token)
+    }
   }
 
-  def deleteTokens() {
-
-    tokens = Map()
+  def deleteTokens() {    
+    tokens map (deleteToken)
   }
 
   def deleteExpiredTokens() {
-    tokens = tokens.filter(!_._2.isExpired)
+    for (token <- tokens) {
+      if (token.isExpired)
+        deleteToken(token)
+    }
   }
 }
