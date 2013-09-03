@@ -23,8 +23,8 @@ object ApplicationBuild extends Build {
         Resolver.ivyStylePatterns)
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
+//    scalaVersion := "2.10.2",
     extraResolvers,
     resolvers += Resolver.sonatypeRepo("snapshots"),
-    libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _),
-    scalaVersion := "2.10.2")
+    libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _))
 }
