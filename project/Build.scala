@@ -13,7 +13,7 @@ object ApplicationBuild extends Build {
     anorm,
     "org.pegdown" % "pegdown" % "1.3.0",
     "com.typesafe.slick" %% "slick" % "1.0.1",
-    "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT",
+//    "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT",
     "securesocial" %% "securesocial" % "master-SNAPSHOT")
 
   val extraResolvers =
@@ -26,5 +26,6 @@ object ApplicationBuild extends Build {
 //    scalaVersion := "2.10.2",
     extraResolvers,
     resolvers += Resolver.sonatypeRepo("snapshots"),
+    scalacOptions ++= Seq("-feature", "-language:postfixOps"),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _))
 }

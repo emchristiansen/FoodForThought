@@ -16,145 +16,331 @@
  */
 package service
 
-import play.api.Application
-import play.api.Logger
-import securesocial.core._
-import securesocial.core.IdentityId
-import securesocial.core.UserServicePlugin
-import securesocial.core.providers.Token
-
-import play.api.db._
-import play.api.Play.current
-import slick.driver.H2Driver.simple._
-import slick.driver.H2Driver.simple.Database.threadLocalSession
+import scala.slick.driver.H2Driver.simple.Database
+import scala.slick.driver.H2Driver.simple.Database.threadLocalSession
+import scala.slick.driver.H2Driver.simple.Query
+import scala.slick.driver.H2Driver.simple.Table
+import scala.slick.driver.H2Driver.simple.booleanColumnExtensionMethods
+import scala.slick.driver.H2Driver.simple.columnBaseToInsertInvoker
+import scala.slick.driver.H2Driver.simple.columnExtensionMethods
+import scala.slick.driver.H2Driver.simple.ddlToDDLInvoker
+import scala.slick.driver.H2Driver.simple.queryToQueryInvoker
+import scala.slick.driver.H2Driver.simple.valueToConstColumn
 import scala.slick.jdbc.meta.MTable
+import play.api.Application
+import play.api.Play.current
+import play.api.db.DB
+import securesocial.core.AuthenticationMethod
+import securesocial.core.Identity
+import securesocial.core.IdentityId
+import securesocial.core.PasswordInfo
+import securesocial.core.UserServicePlugin
+import slick.lifted.MappedTypeMapper
+import java.sql.Date
+import org.joda.time.DateTime
+import slick.lifted.TypeMapper.DateTypeMapper
+import securesocial.core.providers.Token
+import scala.slick.driver.H2Driver.simple._
+import play.api.Logger
 
-import scala.pickling._
-import json._
+//import scala.slick.driver.H2Driver
+//import H2Driver.simple.Database
+//import Database.{ threadLocalSession => session }
+//import scala.slick.direct._
+//import scala.slick.direct.AnnotationMapper._
 
-/**
- * Stores a `SocialUser` as a JSON object.
- *
- * This is a hack; it would be better to manually make each field of
- * SocialUser a column, but there are _a lot_ of fields and I'd rather
- * just wait for Slick to make this automatic.
- */
-object SocialUserJSONs extends Table[String]("SocialUserJSONs") {
-  def json = column[String]("json")
+//@table
+//case class Coffee(
+//  @column name: String,
+//  @column(name = "PRICE") price: Double)
+//
+//@table
+//case class Foo(
+//  @column a: Int,
+//  @column b: String)
+//
+//@table
+//case class Bar(
+//  @column c: Foo)
 
-  def * = json
+case class IdentityRecord(
+  identityID_userID: String,
+  identityID_providerID: String,
+  firstName: String,
+  lastName: String,
+  fullName: String,
+  email: Option[String],
+  avatarUrl: Option[String],
+  authMethod_method: String,
+  passwordInfo_hasher: Option[String],
+  passwordInfo_password: Option[String],
+  passwordInfo_salt: Option[Option[String]] = None) extends Identity {
+  override def identityId =
+    IdentityId(identityID_userID, identityID_providerID)
+
+  override def authMethod = AuthenticationMethod(authMethod_method)
+
+  override def oAuth1Info = None
+
+  override def oAuth2Info = None
+
+  override def passwordInfo = for (
+    hasher <- passwordInfo_hasher;
+    password <- passwordInfo_password;
+    salt <- passwordInfo_salt
+  ) yield PasswordInfo(hasher, password, salt)
 }
 
-object TokenJSONs extends Table[String]("TokenJSONs") {
-  def json = column[String]("json")
+object IdentityRecords extends Table[IdentityRecord]("IdentityRecords") {
+  def identityID_userID = column[String]("identityID_userID")
+  def identityID_providerID = column[String]("identityID_providerID")
+  def firstName = column[String]("firstName")
+  def lastName = column[String]("lastName")
+  def fullName = column[String]("fullName")
+  def email = column[Option[String]]("email") // Option[String]
+  def avatarUrl = column[Option[String]]("avatarUrl") // Option[String]
+  def authMethod_method = column[String]("authMethod_method")
+  def passwordInfo_hasher = column[Option[String]]("passwordInfo_hasher") // Option[String]
+  def passwordInfo_password = column[Option[String]]("passwordInfo_password") // Option[String]
+  def passwordInfo_salt = column[Option[Option[String]]]("passwordInfo_salt") // Option[Option[String]]
 
-  def * = json
+  def * =
+    identityID_userID ~
+      identityID_providerID ~
+      firstName ~
+      lastName ~
+      fullName ~
+      email ~
+      avatarUrl ~
+      authMethod_method ~
+      passwordInfo_hasher ~
+      passwordInfo_password ~
+      passwordInfo_salt <>
+      (IdentityRecord.apply _, IdentityRecord.unapply _)
 }
 
-//case class JSONHelper[TableObjectType, ElementType](tableName: String, tableObject: TableObjectType) {
-//  def elements = Database.forDataSource(DB.getDataSource()).withSession {
-//    if (MTable.getTables(tableName).list().isEmpty) Nil
-//    else {
-//      val strings = Query(tableObject).list
-//      for (string <- stringss) yield string.unpickle[ElementType]
-//    }
-//  }
-//}
+object DateTimeMapper {
+
+  implicit def date2dateTime = MappedTypeMapper.base[DateTime, Date](
+    dateTime => new Date(dateTime.getMillis),
+    date => new DateTime(date))
+
+}
+
+object Tokens extends Table[Token]("Tokens") {
+  implicit def date2dateTime = MappedTypeMapper.base[DateTime, Date](
+    dateTime => new Date(dateTime.getMillis),
+    date => new DateTime(date))
+
+  def uuid = column[String]("uuid")
+
+  def email = column[String]("email")
+
+  def creationTime = column[DateTime]("creationTime")
+
+  def expirationTime = column[DateTime]("expirationTime")
+
+  def isSignUp = column[Boolean]("isSignUp")
+
+  def * =
+    uuid ~
+      email ~
+      creationTime ~
+      expirationTime ~
+      isSignUp <> (Token.apply _, Token.unapply _)
+}
 
 /**
  * A persistent user service.
  */
-class PersistentUserService(application: Application) extends UserServicePlugin(application) {
-  def users: Seq[SocialUser] = Database.forDataSource(DB.getDataSource()).withSession {
-    if (MTable.getTables("SocialUserJSONs").list().isEmpty) Nil
-    else {
-      for (json <- Query(SocialUserJSONs).list) yield json.unpickle[SocialUser]
-    }
+class PersistentUserService(
+  application: Application) extends UserServicePlugin(application) {
+  def withDatabase[A](action: => A): A = Database.forDataSource(DB.getDataSource()).withSession {
+    action
   }
 
-  def insertUser(user: SocialUser) {
-    Database.forDataSource(DB.getDataSource()).withSession {
-      if (MTable.getTables("SocialUserJSONs").list().isEmpty) SocialUserJSONs.ddl.create
-
-      SocialUserJSONs.insert(user.pickle.toString)
+  def ensureExistsIdentityRecords =
+    withDatabase {
+      if (MTable.getTables(IdentityRecords.tableName).list().isEmpty) IdentityRecords.ddl.create
     }
-  }
 
-  def deleteUser(user: SocialUser) {
-    Database.forDataSource(DB.getDataSource()).withSession {
-      if (MTable.getTables("SocialUserJSONs").list().isEmpty) SocialUserJSONs.ddl.create
-
-      SocialUserJSONs.filter(_.json.toString.unpickle[SocialUser] == user).delete
+  def ensureExistsTokens =
+    withDatabase {
+      if (MTable.getTables(Tokens.tableName).list().isEmpty) Tokens.ddl.create
     }
-  }
-
-  def tokens: Seq[Token] = Database.forDataSource(DB.getDataSource()).withSession {
-    if (MTable.getTables("TokenJSONs").list().isEmpty) Nil
-    else {
-      for (json <- Query(TokenJSONs).list) yield json.unpickle[Token]
-    }
-  }
-
-  def insertToken(user: Token) {
-    Database.forDataSource(DB.getDataSource()).withSession {
-      if (MTable.getTables("TokenJSONs").list().isEmpty) TokenJSONs.ddl.create
-
-      TokenJSONs.insert(user.pickle.toString)
-    }
-  }
-
-  def deleteToken(user: Token) {
-    Database.forDataSource(DB.getDataSource()).withSession {
-      if (MTable.getTables("TokenJSONs").list().isEmpty) TokenJSONs.ddl.create
-
-      TokenJSONs.filter(_.json.toString.unpickle[Token] == user).delete
-    }
-  }
 
   def find(id: IdentityId): Option[Identity] = {
+    ensureExistsIdentityRecords
+
     if (Logger.isDebugEnabled) {
-      Logger.debug("users = %s".format(users))
+      Logger.debug("find")
+      Logger.debug(id.toString)
+      withDatabase {
+        Query(IdentityRecords).list map (s => Logger.debug(s.toString))
+      }
     }
-    users.find(_.identityId == id)
+
+    withDatabase {
+      val matching = Query(IdentityRecords).filter { record =>
+        record.identityID_userID === id.userId && record.identityID_providerID === id.providerId
+      }
+
+      val value = matching.list.headOption
+      Logger.debug(value.toString)
+      value
+    }
   }
 
   def findByEmailAndProvider(email: String, providerId: String): Option[Identity] = {
+    ensureExistsIdentityRecords
+
     if (Logger.isDebugEnabled) {
-      Logger.debug("users = %s".format(users))
+      Logger.debug("findByEmailAndProvider")
+      Logger.debug(email)
+      Logger.debug(providerId)
+      withDatabase {
+        Query(IdentityRecords).list map (s => Logger.debug(s.toString))
+      }
     }
 
-    users.find(u => u.email.map(e => e == email && u.identityId.providerId == providerId).getOrElse(false))
+    withDatabase {
+      val matching = Query(IdentityRecords).filter { record =>
+        record.email === email && record.identityID_providerID === providerId
+      }
+
+      val value = matching.list.headOption
+      Logger.debug(value.toString)
+      value
+    }
   }
 
-  def save(user: Identity): Identity = user match {
-    case socialUser: SocialUser =>
-      insertUser(socialUser)
-      user
-    case _ => sys.error("Identity isn't a SocialUser")
+  def save(id: Identity): Identity = {
+    ensureExistsIdentityRecords
+
+    if (Logger.isDebugEnabled) {
+      Logger.debug("save")
+      Logger.debug(id.toString)
+      withDatabase {
+        Query(IdentityRecords).list map (s => Logger.debug(s.toString))
+      }
+    }
+
+    // We first need to delete the old identity.
+    withDatabase {
+      Query(IdentityRecords).filter { record =>
+        record.identityID_userID === id.identityId.userId &&
+          record.identityID_providerID === id.identityId.providerId
+      }.delete
+    }
+
+    val record = IdentityRecord(
+      id.identityId.userId,
+      id.identityId.providerId,
+      id.firstName,
+      id.lastName,
+      id.fullName,
+      id.email,
+      id.avatarUrl,
+      id.authMethod.method,
+      id.passwordInfo.map(_.hasher),
+      id.passwordInfo.map(_.password),
+      id.passwordInfo.map(_.salt))
+
+    withDatabase {
+      IdentityRecords.insert(record)
+    }
+
+    Logger.debug(record.toString)
+    record
   }
 
   def save(token: Token) {
-    insertToken(token)
-  }
+    ensureExistsTokens
 
-  def findToken(uuid: String): Option[Token] = {
-    tokens.find(_.uuid == uuid)
-  }
+    if (Logger.isDebugEnabled) {
+      Logger.debug("save")
+      Logger.debug(token.toString)
+      withDatabase {
+        Query(Tokens).list map (s => Logger.debug(s.toString))
+      }
+    }
 
-  def deleteToken(uuid: String) {
-    for (token <- findToken(uuid)) {
-      deleteToken(token)
+    withDatabase {
+      Tokens.insert(token)
     }
   }
 
-  def deleteTokens() {    
-    tokens map (deleteToken)
+  def findToken(uuid: String): Option[Token] = {
+    ensureExistsTokens
+
+    if (Logger.isDebugEnabled) {
+      Logger.debug("findToken")
+      Logger.debug(uuid)
+      withDatabase {
+        Query(Tokens).list map (s => Logger.debug(s.toString))
+      }
+    }
+
+    withDatabase {
+      val matching = Query(Tokens).filter { token =>
+        token.uuid === uuid
+      }
+
+      val value = matching.list.headOption
+      Logger.debug(value.toString)
+      value
+    }
+  }
+
+  def deleteToken(uuid: String) {
+    ensureExistsTokens
+
+    if (Logger.isDebugEnabled) {
+      Logger.debug("deleteToken")
+      Logger.debug(uuid)
+      withDatabase {
+        Query(Tokens).list map (s => Logger.debug(s.toString))
+      }
+    }
+
+    withDatabase {
+      val matching = Query(Tokens).filter { token =>
+        token.uuid === uuid
+      }
+
+      matching.delete
+    }
+  }
+
+  def deleteTokens() {
+    ensureExistsTokens
+
+    if (Logger.isDebugEnabled) {
+      Logger.debug("deleteTokens")
+      withDatabase {
+        Query(Tokens).list map (s => Logger.debug(s.toString))
+      }
+    }
+
+    Query(Tokens).delete
   }
 
   def deleteExpiredTokens() {
-    for (token <- tokens) {
-      if (token.isExpired)
-        deleteToken(token)
+    ensureExistsTokens
+
+    if (Logger.isDebugEnabled) {
+      Logger.debug("deleteExpiredTokens")
+      withDatabase {
+        Query(Tokens).list map (s => Logger.debug(s.toString))
+      }
+    }
+
+    withDatabase {
+      val expiredTokens = Query(Tokens).list.filter(_.isExpired)
+
+      for (expired <- expiredTokens) {
+        deleteToken(expired.uuid)
+      }
     }
   }
 }
