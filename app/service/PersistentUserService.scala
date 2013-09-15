@@ -16,331 +16,94 @@
  */
 package service
 
-import scala.slick.driver.H2Driver.simple.Database
-import scala.slick.driver.H2Driver.simple.Database.threadLocalSession
-import scala.slick.driver.H2Driver.simple.Query
-import scala.slick.driver.H2Driver.simple.Table
-import scala.slick.driver.H2Driver.simple.booleanColumnExtensionMethods
-import scala.slick.driver.H2Driver.simple.columnBaseToInsertInvoker
-import scala.slick.driver.H2Driver.simple.columnExtensionMethods
-import scala.slick.driver.H2Driver.simple.ddlToDDLInvoker
-import scala.slick.driver.H2Driver.simple.queryToQueryInvoker
-import scala.slick.driver.H2Driver.simple.valueToConstColumn
-import scala.slick.jdbc.meta.MTable
-import play.api.Application
-import play.api.Play.current
-import play.api.db.DB
-import securesocial.core.AuthenticationMethod
-import securesocial.core.Identity
-import securesocial.core.IdentityId
-import securesocial.core.PasswordInfo
-import securesocial.core.UserServicePlugin
-import slick.lifted.MappedTypeMapper
-import java.sql.Date
-import org.joda.time.DateTime
-import slick.lifted.TypeMapper.DateTypeMapper
+import play.api.{ Logger, Application }
+import securesocial.core._
 import securesocial.core.providers.Token
-import scala.slick.driver.H2Driver.simple._
-import play.api.Logger
+import securesocial.core.IdentityId
 
-//import scala.slick.driver.H2Driver
-//import H2Driver.simple.Database
-//import Database.{ threadLocalSession => session }
-//import scala.slick.direct._
-//import scala.slick.direct.AnnotationMapper._
+import scalatestextra._
 
-//@table
-//case class Coffee(
-//  @column name: String,
-//  @column(name = "PRICE") price: Double)
-//
-//@table
-//case class Foo(
-//  @column a: Int,
-//  @column b: String)
-//
-//@table
-//case class Bar(
-//  @column c: Foo)
+import scala.pickling._
+import scala.pickling.binary._
 
-case class IdentityRecord(
-  identityID_userID: String,
-  identityID_providerID: String,
-  firstName: String,
-  lastName: String,
-  fullName: String,
-  email: Option[String],
-  avatarUrl: Option[String],
-  authMethod_method: String,
-  passwordInfo_hasher: Option[String],
-  passwordInfo_password: Option[String],
-  passwordInfo_salt: Option[Option[String]] = None) extends Identity {
-  override def identityId =
-    IdentityId(identityID_userID, identityID_providerID)
-
-  override def authMethod = AuthenticationMethod(authMethod_method)
-
-  override def oAuth1Info = None
-
-  override def oAuth2Info = None
-
-  override def passwordInfo = for (
-    hasher <- passwordInfo_hasher;
-    password <- passwordInfo_password;
-    salt <- passwordInfo_salt
-  ) yield PasswordInfo(hasher, password, salt)
-}
-
-object IdentityRecords extends Table[IdentityRecord]("IdentityRecords") {
-  def identityID_userID = column[String]("identityID_userID")
-  def identityID_providerID = column[String]("identityID_providerID")
-  def firstName = column[String]("firstName")
-  def lastName = column[String]("lastName")
-  def fullName = column[String]("fullName")
-  def email = column[Option[String]]("email") // Option[String]
-  def avatarUrl = column[Option[String]]("avatarUrl") // Option[String]
-  def authMethod_method = column[String]("authMethod_method")
-  def passwordInfo_hasher = column[Option[String]]("passwordInfo_hasher") // Option[String]
-  def passwordInfo_password = column[Option[String]]("passwordInfo_password") // Option[String]
-  def passwordInfo_salt = column[Option[Option[String]]]("passwordInfo_salt") // Option[Option[String]]
-
-  def * =
-    identityID_userID ~
-      identityID_providerID ~
-      firstName ~
-      lastName ~
-      fullName ~
-      email ~
-      avatarUrl ~
-      authMethod_method ~
-      passwordInfo_hasher ~
-      passwordInfo_password ~
-      passwordInfo_salt <>
-      (IdentityRecord.apply _, IdentityRecord.unapply _)
-}
-
-object DateTimeMapper {
-
-  implicit def date2dateTime = MappedTypeMapper.base[DateTime, Date](
-    dateTime => new Date(dateTime.getMillis),
-    date => new DateTime(date))
-
-}
-
-object Tokens extends Table[Token]("Tokens") {
-  implicit def date2dateTime = MappedTypeMapper.base[DateTime, Date](
-    dateTime => new Date(dateTime.getMillis),
-    date => new DateTime(date))
-
-  def uuid = column[String]("uuid")
-
-  def email = column[String]("email")
-
-  def creationTime = column[DateTime]("creationTime")
-
-  def expirationTime = column[DateTime]("expirationTime")
-
-  def isSignUp = column[Boolean]("isSignUp")
-
-  def * =
-    uuid ~
-      email ~
-      creationTime ~
-      expirationTime ~
-      isSignUp <> (Token.apply _, Token.unapply _)
-}
+import scala.slick.driver.SQLiteDriver.simple._
 
 /**
- * A persistent user service.
+ * A Sample In Memory user service in Scala
+ *
+ * IMPORTANT: This is just a sample and not suitable for a production environment since
+ * it stores everything in memory.
  */
-class PersistentUserService(
-  application: Application) extends UserServicePlugin(application) {
-  def withDatabase[A](action: => A): A = Database.forDataSource(DB.getDataSource()).withSession {
-    action
+class PersistentUserService(application: Application) extends UserServicePlugin(application) {
+//  val database = Database.forURL("jdbc:sqlite:db.sqlite", driver = "org.sqlite.JDBC")
+  val database = Database.forURL("jdbc:mariadb://localhost:3306/FFTSite", driver = "org.mariadb.jdbc.Driver")
+
+  private val users =
+    PersistentMap.connectElseCreate[String, Identity]("users", database)
+  private val tokens =
+    PersistentMap.connectElseCreate[String, Token]("tokens", database)
+
+  def debugUsersAndTokens(label: String) {
+    Logger.debug(s"label = $label")
+    Logger.debug(s"users = ${users.toMap.toString}")
+    Logger.debug(s"tokens = ${tokens.toMap.toString}")
   }
 
-  def ensureExistsIdentityRecords =
-    withDatabase {
-      if (MTable.getTables(IdentityRecords.tableName).list().isEmpty) IdentityRecords.ddl.create
-    }
-
-  def ensureExistsTokens =
-    withDatabase {
-      if (MTable.getTables(Tokens.tableName).list().isEmpty) Tokens.ddl.create
-    }
+  //  private val users = collection.mutable.Map[String, Identity]()
+  //  private val tokens = collection.mutable.Map[String, Token]()
 
   def find(id: IdentityId): Option[Identity] = {
-    ensureExistsIdentityRecords
-
-    if (Logger.isDebugEnabled) {
-      Logger.debug("find")
-      Logger.debug(id.toString)
-      withDatabase {
-        Query(IdentityRecords).list map (s => Logger.debug(s.toString))
-      }
-    }
-
-    withDatabase {
-      val matching = Query(IdentityRecords).filter { record =>
-        record.identityID_userID === id.userId && record.identityID_providerID === id.providerId
-      }
-
-      val value = matching.list.headOption
-      Logger.debug(value.toString)
-      value
-    }
+    debugUsersAndTokens("find")
+    
+    users.get(id.userId + id.providerId)
   }
 
   def findByEmailAndProvider(email: String, providerId: String): Option[Identity] = {
-    ensureExistsIdentityRecords
-
-    if (Logger.isDebugEnabled) {
-      Logger.debug("findByEmailAndProvider")
-      Logger.debug(email)
-      Logger.debug(providerId)
-      withDatabase {
-        Query(IdentityRecords).list map (s => Logger.debug(s.toString))
-      }
-    }
-
-    withDatabase {
-      val matching = Query(IdentityRecords).filter { record =>
-        record.email === email && record.identityID_providerID === providerId
-      }
-
-      val value = matching.list.headOption
-      Logger.debug(value.toString)
-      value
-    }
+    debugUsersAndTokens("findByEmailAndProvider")
+    
+    users.values.find(u => u.email.map(e => e == email && u.identityId.providerId == providerId).getOrElse(false))
   }
 
-  def save(id: Identity): Identity = {
-    ensureExistsIdentityRecords
+  def save(user: Identity): Identity = {
+    debugUsersAndTokens("save Identity")
 
-    if (Logger.isDebugEnabled) {
-      Logger.debug("save")
-      Logger.debug(id.toString)
-      withDatabase {
-        Query(IdentityRecords).list map (s => Logger.debug(s.toString))
-      }
-    }
+    users += (user.identityId.userId + user.identityId.providerId -> user)
 
-    // We first need to delete the old identity.
-    withDatabase {
-      Query(IdentityRecords).filter { record =>
-        record.identityID_userID === id.identityId.userId &&
-          record.identityID_providerID === id.identityId.providerId
-      }.delete
-    }
-
-    val record = IdentityRecord(
-      id.identityId.userId,
-      id.identityId.providerId,
-      id.firstName,
-      id.lastName,
-      id.fullName,
-      id.email,
-      id.avatarUrl,
-      id.authMethod.method,
-      id.passwordInfo.map(_.hasher),
-      id.passwordInfo.map(_.password),
-      id.passwordInfo.map(_.salt))
-
-    withDatabase {
-      IdentityRecords.insert(record)
-    }
-
-    Logger.debug(record.toString)
-    record
+    // this sample returns the same user object, but you could return an instance of your own class
+    // here as long as it implements the Identity trait. This will allow you to use your own class in the protected
+    // actions and event callbacks. The same goes for the find(id: UserId) method.
+    user
   }
 
   def save(token: Token) {
-    ensureExistsTokens
-
-    if (Logger.isDebugEnabled) {
-      Logger.debug("save")
-      Logger.debug(token.toString)
-      withDatabase {
-        Query(Tokens).list map (s => Logger.debug(s.toString))
-      }
-    }
-
-    withDatabase {
-      Tokens.insert(token)
-    }
+    debugUsersAndTokens("save Token")
+    
+    tokens += (token.uuid -> token)
   }
 
-  def findToken(uuid: String): Option[Token] = {
-    ensureExistsTokens
-
-    if (Logger.isDebugEnabled) {
-      Logger.debug("findToken")
-      Logger.debug(uuid)
-      withDatabase {
-        Query(Tokens).list map (s => Logger.debug(s.toString))
-      }
-    }
-
-    withDatabase {
-      val matching = Query(Tokens).filter { token =>
-        token.uuid === uuid
-      }
-
-      val value = matching.list.headOption
-      Logger.debug(value.toString)
-      value
-    }
+  def findToken(token: String): Option[Token] = {
+    debugUsersAndTokens("findToken")
+    
+    tokens.get(token)
   }
 
   def deleteToken(uuid: String) {
-    ensureExistsTokens
-
-    if (Logger.isDebugEnabled) {
-      Logger.debug("deleteToken")
-      Logger.debug(uuid)
-      withDatabase {
-        Query(Tokens).list map (s => Logger.debug(s.toString))
-      }
-    }
-
-    withDatabase {
-      val matching = Query(Tokens).filter { token =>
-        token.uuid === uuid
-      }
-
-      matching.delete
-    }
+    debugUsersAndTokens("deleteToken")
+    
+    tokens -= uuid
   }
 
   def deleteTokens() {
-    ensureExistsTokens
-
-    if (Logger.isDebugEnabled) {
-      Logger.debug("deleteTokens")
-      withDatabase {
-        Query(Tokens).list map (s => Logger.debug(s.toString))
-      }
-    }
-
-    Query(Tokens).delete
+    debugUsersAndTokens("deleteTokens")
+    
+    tokens.clear()
   }
 
   def deleteExpiredTokens() {
-    ensureExistsTokens
-
-    if (Logger.isDebugEnabled) {
-      Logger.debug("deleteExpiredTokens")
-      withDatabase {
-        Query(Tokens).list map (s => Logger.debug(s.toString))
-      }
-    }
-
-    withDatabase {
-      val expiredTokens = Query(Tokens).list.filter(_.isExpired)
-
-      for (expired <- expiredTokens) {
-        deleteToken(expired.uuid)
-      }
+    debugUsersAndTokens("debugUsersAndTokens")
+    
+    tokens.filter(_._2.isExpired).keys map { token =>
+      tokens -= token
     }
   }
 }

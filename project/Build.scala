@@ -13,7 +13,9 @@ object ApplicationBuild extends Build {
     anorm,
     "org.pegdown" % "pegdown" % "1.3.0",
     "com.typesafe.slick" %% "slick" % "1.0.1",
-//    "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT",
+    "emchristiansen" %% "scalatest-extra" % "0.2-SNAPSHOT",
+    "org.jumpmind.symmetric.jdbc" % "mariadb-java-client" % "1.1.1",
+    //    "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT",
     "securesocial" %% "securesocial" % "master-SNAPSHOT")
 
   val extraResolvers =
@@ -23,7 +25,8 @@ object ApplicationBuild extends Build {
         Resolver.ivyStylePatterns)
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
-//    scalaVersion := "2.10.2",
+    Keys.fork := true,
+    scalaVersion := "2.10.2",
     extraResolvers,
     resolvers += Resolver.sonatypeRepo("snapshots"),
     scalacOptions ++= Seq("-feature", "-language:postfixOps"),
