@@ -36,7 +36,8 @@ import scala.slick.driver.SQLiteDriver.simple._
  */
 class PersistentUserService(application: Application) extends UserServicePlugin(application) {
 //  val database = Database.forURL("jdbc:sqlite:db.sqlite", driver = "org.sqlite.JDBC")
-  val database = Database.forURL("jdbc:mariadb://localhost:3306/FFTSite", driver = "org.mariadb.jdbc.Driver")
+  // TODO: Should not be called "test".
+  val database = Database.forURL("jdbc:mariadb://localhost:3306/test", driver = "org.mariadb.jdbc.Driver")
 
   private val users =
     PersistentMap.connectElseCreate[String, Identity]("users", database)
@@ -48,9 +49,6 @@ class PersistentUserService(application: Application) extends UserServicePlugin(
     Logger.debug(s"users = ${users.toMap.toString}")
     Logger.debug(s"tokens = ${tokens.toMap.toString}")
   }
-
-  //  private val users = collection.mutable.Map[String, Identity]()
-  //  private val tokens = collection.mutable.Map[String, Token]()
 
   def find(id: IdentityId): Option[Identity] = {
     debugUsersAndTokens("find")
@@ -83,6 +81,9 @@ class PersistentUserService(application: Application) extends UserServicePlugin(
 
   def findToken(token: String): Option[Token] = {
     debugUsersAndTokens("findToken")
+    
+    println("token is")
+    println(token)
     
     tokens.get(token)
   }

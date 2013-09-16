@@ -12,23 +12,6 @@ import slick.driver.H2Driver.simple._
 import slick.driver.H2Driver.simple.Database.threadLocalSession
 import scala.slick.jdbc.meta.MTable
 
-// Making `id` an Option allows us to use the AutoInc feature.
-case class User(id: Option[Long], name: String, email: String, password: String)
-
-object Users extends Table[User]("users") {
-  def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
-
-  def name = column[String]("name")
-
-  def email = column[String]("email")
-
-  def password = column[String]("password")
-
-  // Every table needs a * projection with the same type as the 
-  // table's type parameter.
-  def * = (id ?) ~ name ~ email ~ password <> (User.apply _, User.unapply _)
-}
-
 object Application extends Controller {
   //  def markdownToHTML = Action {
   //    val asset = controllers.Assets.at(path="/public/markdown", "index.md")

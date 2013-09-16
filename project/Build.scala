@@ -12,11 +12,11 @@ object ApplicationBuild extends Build {
     jdbc,
     anorm,
     "org.pegdown" % "pegdown" % "1.3.0",
-    "com.typesafe.slick" %% "slick" % "1.0.1",
+//    "com.typesafe.slick" %% "slick" % "1.0.1",
     "emchristiansen" %% "scalatest-extra" % "0.2-SNAPSHOT",
     "org.jumpmind.symmetric.jdbc" % "mariadb-java-client" % "1.1.1",
     //    "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT",
-    "securesocial" %% "securesocial" % "master-SNAPSHOT")
+    "securesocial" %% "securesocial" % "2.2.0-RC1-SNAPSHOT")
 
   val extraResolvers =
     resolvers += Resolver.url(
