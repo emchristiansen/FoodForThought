@@ -40,7 +40,7 @@ class PersistentUserService(application: Application) extends UserServicePlugin(
   val database = Database.forURL("jdbc:mariadb://localhost:3306/test", driver = "org.mariadb.jdbc.Driver")
 
   private val users =
-    PersistentMap.connectElseCreate[String, Identity]("users", database)
+    PersistentMap.connectElseCreate[String, SocialUser]("users", database)
   private val tokens =
     PersistentMap.connectElseCreate[String, Token]("tokens", database)
 
@@ -50,36 +50,38 @@ class PersistentUserService(application: Application) extends UserServicePlugin(
     Logger.debug(s"tokens = ${tokens.toMap.toString}")
   }
 
-  def find(id: IdentityId): Option[Identity] = {
+  override def find(id: IdentityId): Option[SocialUser] = {
     debugUsersAndTokens("find")
     
     users.get(id.userId + id.providerId)
   }
 
-  def findByEmailAndProvider(email: String, providerId: String): Option[Identity] = {
+  override def findByEmailAndProvider(email: String, providerId: String): Option[SocialUser] = {
     debugUsersAndTokens("findByEmailAndProvider")
     
     users.values.find(u => u.email.map(e => e == email && u.identityId.providerId == providerId).getOrElse(false))
   }
 
-  def save(user: Identity): Identity = {
+  override def save(user: Identity): SocialUser = {
     debugUsersAndTokens("save Identity")
 
-    users += (user.identityId.userId + user.identityId.providerId -> user)
+    val socialUser = user.asInstanceOf[SocialUser]
+    
+    users += (socialUser.identityId.userId + socialUser.identityId.providerId -> socialUser)
 
     // this sample returns the same user object, but you could return an instance of your own class
     // here as long as it implements the Identity trait. This will allow you to use your own class in the protected
     // actions and event callbacks. The same goes for the find(id: UserId) method.
-    user
+    socialUser
   }
 
-  def save(token: Token) {
+  override def save(token: Token) {
     debugUsersAndTokens("save Token")
     
     tokens += (token.uuid -> token)
   }
 
-  def findToken(token: String): Option[Token] = {
+  override def findToken(token: String): Option[Token] = {
     debugUsersAndTokens("findToken")
     
     println("token is")
@@ -88,19 +90,19 @@ class PersistentUserService(application: Application) extends UserServicePlugin(
     tokens.get(token)
   }
 
-  def deleteToken(uuid: String) {
+  override def deleteToken(uuid: String) {
     debugUsersAndTokens("deleteToken")
     
     tokens -= uuid
   }
 
-  def deleteTokens() {
-    debugUsersAndTokens("deleteTokens")
-    
-    tokens.clear()
-  }
+//  override def deleteTokens() {
+//    debugUsersAndTokens("deleteTokens")
+//    
+//    tokens.clear()
+//  }
 
-  def deleteExpiredTokens() {
+  override def deleteExpiredTokens() {
     debugUsersAndTokens("debugUsersAndTokens")
     
     tokens.filter(_._2.isExpired).keys map { token =>
