@@ -5,4 +5,6 @@ It should also increase research productivity by reducing the amount of time spe
 
 The website will log the ongoing costs and benefits of the experiment as well as procedures and recommendations for its replication.
 
+TODO: Customize the email messages.
+
 

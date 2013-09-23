@@ -3,33 +3,43 @@
 # ~~~~
 
 # Home page
-GET    /               controllers.Application.getIndex
-GET    /methods        controllers.Application.getMethods
-GET    /results        controllers.Application.getResults
-GET    /faq            controllers.Application.getFAQ
-GET    /blog           controllers.Application.getBlog
-GET    /group          controllers.Application.getGroup
-GET    /source         controllers.Application.getSource
+GET    /                         fftsite.controllers.FFTSite.getIndex
+GET    /methods                  fftsite.controllers.FFTSite.getMethods
+GET    /results                  fftsite.controllers.FFTSite.getResults
+GET    /faq                      fftsite.controllers.FFTSite.getFAQ
+GET    /blog                     fftsite.controllers.FFTSite.getBlog
+GET    /group                    fftsite.controllers.FFTSite.getGroup
+GET    /source                   fftsite.controllers.FFTSite.getSource
+GET    /authenticateDropdown     fftsite.controllers.FFTSite.getAuthenticateDropdown
+#GET    /test                     fftsite.controllers.FFTSite.getTest
+#POST   /test                     fftsite.controllers.FFTSite.postTest
 
 # Map static resources from the /public folder to the /assets URL path
-GET    /assets/*file   controllers.Assets.at(path="/public", file)
+GET    /assets/*file             controllers.Assets.at(path="/public", file)
 
 # Login page
-GET     /login                      securesocial.controllers.LoginPage.login
-GET     /logout                     securesocial.controllers.LoginPage.logout
+GET    /login                    securesocial.controllers.LoginPage.login
+GET    /logout                   securesocial.controllers.LoginPage.logout
 
 # User Registration and password handling (only needed if you are using UsernamePasswordProvider)
-GET     /signup                     securesocial.controllers.Registration.startSignUp
-POST    /signup                     securesocial.controllers.Registration.handleStartSignUp
-GET     /signup/:token              securesocial.controllers.Registration.signUp(token)
-POST    /signup/:token              securesocial.controllers.Registration.handleSignUp(token)
-GET     /reset                      securesocial.controllers.Registration.startResetPassword
-POST    /reset                      securesocial.controllers.Registration.handleStartResetPassword
-GET     /reset/:token               securesocial.controllers.Registration.resetPassword(token)
-POST    /reset/:token               securesocial.controllers.Registration.handleResetPassword(token)
-GET     /password                   securesocial.controllers.PasswordChange.page
-POST    /password                   securesocial.controllers.PasswordChange.handlePasswordChange
+GET    /signup                   fftsite.controllers.CustomRegistration.startSignUp
+POST   /signup                   fftsite.controllers.CustomRegistration.handleStartSignUp
 
-GET     /authenticate/:provider     securesocial.controllers.ProviderController.authenticate(provider)
-POST    /authenticate/:provider     securesocial.controllers.ProviderController.authenticateByPost(provider)
-GET     /not-authorized             securesocial.controllers.ProviderController.notAuthorized
+# TODO: These routes must exist because SecureSocial stupidly requires them
+# to exist, but their existence provides a backdoor for anyone to register.
+# Grrr. 
+GET    /bugWorkaround/signup     securesocial.controllers.Registration.startSignUp
+POST   /bugWorkaround/signup     securesocial.controllers.Registration.handleStartSignUp
+
+GET    /signup/:token            securesocial.controllers.Registration.signUp(token)
+POST   /signup/:token            securesocial.controllers.Registration.handleSignUp(token)
+GET    /reset                    securesocial.controllers.Registration.startResetPassword
+POST   /reset                    securesocial.controllers.Registration.handleStartResetPassword
+GET    /reset/:token             securesocial.controllers.Registration.resetPassword(token)
+POST   /reset/:token             securesocial.controllers.Registration.handleResetPassword(token)
+GET    /password                 securesocial.controllers.PasswordChange.page
+POST   /password                 securesocial.controllers.PasswordChange.handlePasswordChange
+
+GET    /authenticate/:provider   securesocial.controllers.ProviderController.authenticate(provider)
+POST   /authenticate/:provider   securesocial.controllers.ProviderController.authenticateByPost(provider)
+GET    /not-authorized           securesocial.controllers.ProviderController.notAuthorized

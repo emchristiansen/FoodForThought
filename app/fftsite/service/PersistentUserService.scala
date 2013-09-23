@@ -14,8 +14,9 @@
  * limitations under the License.
  *
  */
-package service
+package fftsite.service
 
+import fftsite._
 import play.api.{ Logger, Application }
 import securesocial.core._
 import securesocial.core.providers.Token
@@ -27,6 +28,10 @@ import scala.pickling._
 import scala.pickling.binary._
 
 import scala.slick.driver.SQLiteDriver.simple._
+import play.api.db.DB
+import play.api.Play.current
+
+import models.Models._
 
 /**
  * A Sample In Memory user service in Scala
@@ -35,15 +40,6 @@ import scala.slick.driver.SQLiteDriver.simple._
  * it stores everything in memory.
  */
 class PersistentUserService(application: Application) extends UserServicePlugin(application) {
-//  val database = Database.forURL("jdbc:sqlite:db.sqlite", driver = "org.sqlite.JDBC")
-  // TODO: Should not be called "test".
-  val database = Database.forURL("jdbc:mariadb://localhost:3306/test", driver = "org.mariadb.jdbc.Driver")
-
-  private val users =
-    PersistentMap.connectElseCreate[String, SocialUser]("users", database)
-  private val tokens =
-    PersistentMap.connectElseCreate[String, Token]("tokens", database)
-
   def debugUsersAndTokens(label: String) {
     Logger.debug(s"label = $label")
     Logger.debug(s"users = ${users.toMap.toString}")

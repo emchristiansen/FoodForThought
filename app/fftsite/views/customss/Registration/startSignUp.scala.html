@@ -1,0 +1,43 @@
+@(startForm:Form[String])(implicit request: RequestHeader)
+@import helper._
+@import securesocial.core.IdentityProvider
+@implicitFieldConstructor = @{ FieldConstructor(securesocial.views.html.inputFieldConstructor.f) }
+
+@fftsite.views.html.main( Messages("securesocial.signup.title") ) {
+    <div class="page-header">
+        <h1>@Messages("securesocial.signup.title")</h1>
+    </div>
+
+    @request.flash.get("error").map { msg =>
+    <div class="alert alert-error">
+        @Messages(msg)
+    </div>
+    }
+
+    <p>You must be a member of the SO(3) lab to sign up; this part of the site is used for the day-to-day operation of Food for Thought.</p> 
+    
+    <hr>
+
+    <p>You must use an @@cs.ucsd.edu or an @@eng.ucsd.edu email address.</p>
+
+
+    <form action="@fftsite.controllers.routes.CustomRegistration.handleStartSignUp().absoluteURL(IdentityProvider.sslEnabled)"
+          class="form-horizontal"
+          autocomplete="off" method="post"
+    >
+        <fieldset>
+            @helper.inputText(
+            startForm("email"),
+            '_label -> Messages("securesocial.signup.email1"),
+            'class -> "input-xlarge",
+            '_showConstraints -> true
+            )
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">@Messages("securesocial.signup.createAccount")</button>
+                <a class="btn" href="@securesocial.core.providers.utils.RoutesHelper.login()">@Messages("securesocial.signup.cancel")</a>
+            </div>
+
+        </fieldset>
+    </form>
+}

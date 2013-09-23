@@ -1,4 +1,4 @@
-package service
+package fftsite.service
 
 import securesocial.core._
 import play.api.mvc.{Session, RequestHeader}

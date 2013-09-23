@@ -1,0 +1,11 @@
+@(id: String, route: Call)
+
+<div id="@id"></div>      
+      
+<script>      
+ $(function(){
+   $("#@id").load("@route", function(){
+        $(this).contents().unwrap();
+   }); 
+});     
+</script> 
