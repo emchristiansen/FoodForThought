@@ -16,7 +16,7 @@ object ApplicationBuild extends Build {
     "emchristiansen" %% "scalatest-extra" % "0.2-SNAPSHOT",
     "org.jumpmind.symmetric.jdbc" % "mariadb-java-client" % "1.1.1",
     //    "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT",
-    "securesocial" %% "securesocial" % "2.2.0-RC1-SNAPSHOT")
+    "securesocial" %% "securesocial" % "master-2.2-SNAPSHOT")
 
   val extraResolvers =
     resolvers += Resolver.url(
@@ -26,7 +26,7 @@ object ApplicationBuild extends Build {
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     Keys.fork := true,
-    scalaVersion := "2.10.2",
+    scalaVersion := "2.10.3-RC3",
     extraResolvers,
     resolvers += Resolver.sonatypeRepo("snapshots"),
     scalacOptions ++= Seq(
