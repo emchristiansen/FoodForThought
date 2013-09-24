@@ -11,6 +11,10 @@ GET    /blog                     fftsite.controllers.FFTSite.getBlog
 GET    /group                    fftsite.controllers.FFTSite.getGroup
 GET    /source                   fftsite.controllers.FFTSite.getSource
 GET    /authenticateDropdown     fftsite.controllers.FFTSite.getAuthenticateDropdown
+GET    /profile                  fftsite.controllers.FFTSite.getProfile
+POST   /profile                  fftsite.controllers.FFTSite.postProfile
+GET    /signups                  fftsite.controllers.FFTSite.getSignUp
+POST   /signups                  fftsite.controllers.FFTSite.postSignUp
 #GET    /test                     fftsite.controllers.FFTSite.getTest
 #POST   /test                     fftsite.controllers.FFTSite.postTest
 
@@ -26,7 +30,8 @@ GET    /signup                   fftsite.controllers.CustomRegistration.startSig
 POST   /signup                   fftsite.controllers.CustomRegistration.handleStartSignUp
 
 # TODO: These routes must exist because SecureSocial stupidly requires them
-# to exist, but their existence provides a backdoor for anyone to register.
+# to exist (via run-time reflection of all things), but their existence 
+# provides a backdoor for anyone to register.
 # Grrr. 
 GET    /bugWorkaround/signup     securesocial.controllers.Registration.startSignUp
 POST   /bugWorkaround/signup     securesocial.controllers.Registration.handleStartSignUp

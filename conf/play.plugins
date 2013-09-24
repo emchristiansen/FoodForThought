@@ -2,8 +2,8 @@
 9994:securesocial.core.DefaultAuthenticatorStore
 9995:securesocial.core.DefaultIdGenerator
 9996:securesocial.core.providers.utils.DefaultPasswordValidator
-9997:controllers.CustomTemplatesPlugin
-9998:service.PersistentUserService
+9997:fftsite.controllers.CustomTemplatesPlugin
+9998:fftsite.service.PersistentUserService
 9999:securesocial.core.providers.utils.BCryptPasswordHasher
 10004:securesocial.core.providers.UsernamePasswordProvider
-10006:service.MyEventListener
+10006:fftsite.service.MyEventListener

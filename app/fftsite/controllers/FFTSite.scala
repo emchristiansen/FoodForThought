@@ -2,6 +2,9 @@ package fftsite.controllers
 
 import fftsite._
 
+import org.joda.time._
+import fftsite.models._
+
 import play.api.mvc.Action
 import play.api.mvc.Controller
 import play.api.templates.Html
@@ -15,9 +18,11 @@ import slick.driver.H2Driver.simple.Database.threadLocalSession
 import scala.slick.jdbc.meta.MTable
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
-
+import securesocial.core._
 
 object FFTSite extends Controller with securesocial.core.SecureSocial {
+  val updateSaved = "fftUpdateSaved"
+
   def loadResourceAsString(resource: String): String = {
     val file = getClass.getResource(resource).getFile
     io.Source.fromFile(file).mkString
@@ -28,21 +33,21 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
 
   def resourceMarkdownToHTML = (markdownToHTML _) compose loadResourceAsString
 
-  def getIndex = Action { Ok(views.html.index()) }
+  def getIndex = Action { implicit request => Ok(views.html.index()) }
 
-  def getMethods = Action { Ok(views.html.methods()) }
+  def getMethods = Action { implicit request => Ok(views.html.methods()) }
 
-  def getResults = Action { Ok(views.html.results()) }
+  def getResults = Action { implicit request => Ok(views.html.results()) }
 
-  def getFAQ = Action { Ok(views.html.faq()) }
+  def getFAQ = Action { implicit request => Ok(views.html.faq()) }
 
-  def getBlog = Action { Redirect("http://so3fft.blogspot.com") }
+  def getBlog = Action { implicit request => Redirect("http://so3fft.blogspot.com") }
 
-  def getGroup = Action {
+  def getGroup = Action { implicit request =>
     Redirect("https://groups.google.com/forum/?fromgroups#!forum/so3foodforthought")
   }
 
-  def getSource = Action {
+  def getSource = Action { implicit request =>
     Redirect("https://github.com/emchristiansen/FoodForThought")
   }
 
@@ -53,14 +58,73 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
     }
   }
 
-//  val myForm = Form("age" -> number)
-//
-//  def getTest = Action { implicit request =>
-//    Ok(views.html.test(myForm))
-////    Redirect(routes.Application.getIndex)
-//  }
-//
-//  def postTest = Action {
-//    Redirect(routes.FFTSite.getIndex)
-//  }
+  // TODO: Delete this.
+  def testID = Models.users(IdentityId("echristiansen@eng.ucsd.edu", "userpass"))
+
+  //  val userInformationForm = Form(mapping(
+  //    "studentID" -> optional(text),
+  //    "employeeID" -> optional(text))(UserInformation.apply)(UserInformation.unapply))
+  //
+  //  val dietaryInformationForm = Form(mapping(
+  //    "restrictions" -> optional(text),
+  //    "preferences" -> optional(text),
+  //    "additionalNotes" -> optional(text))(DietaryInformation.apply)(DietaryInformation.unapply))
+
+  val profileForm = Form(tuple(
+    "userInformation" -> mapping(
+      "studentID" -> optional(text),
+      "employeeID" -> optional(text))(UserInformation.apply)(UserInformation.unapply),
+    "dietaryInformation" -> mapping(
+      "restrictions" -> optional(text),
+      "preferences" -> optional(text),
+      "additionalNotes" -> optional(text))(DietaryInformation.apply)(DietaryInformation.unapply)))
+
+  // TODO: Change to SecuredAction
+  def getProfile = UserAwareAction { implicit request =>
+    val user: SocialUser = testID
+
+    val userInformation = Models.userInformation.getOrElse(
+      user.identityId,
+      UserInformation(None, None))
+
+    val dietaryInformation = Models.dietaryInformation.getOrElse(
+      user.identityId,
+      DietaryInformation(None, None, None))
+
+    Ok(views.html.profile(profileForm.fill((userInformation, dietaryInformation))))
+  }
+
+  // TODO: Add flashing.
+  def postProfile = UserAwareAction { implicit request =>
+    val user: SocialUser = testID
+
+    profileForm.bindFromRequest.fold(
+      formWithErrors =>
+        BadRequest(views.html.profile(formWithErrors)),
+      value => {
+        Models.userInformation(user.identityId) = value._1
+        Models.dietaryInformation(user.identityId) = value._2
+        Redirect(fftsite.controllers.routes.FFTSite.getProfile)
+      })
+  }
+
+  val signUpForm = Form(
+    "freshFood" -> list(boolean))
+
+  def getSignUp = UserAwareAction { implicit request =>
+    val user: SocialUser = testID
+
+    def nextDays(
+      roster: Map[String, IdentityId],
+      numDays: Int): List[(LocalDate, IdentityId)] = ???
+
+    Ok(views.html.signUp(signUpForm.fill(List(false, false, false))))
+
+  }
+  
+  def postSignUp = UserAwareAction { implicit request =>
+    val user: SocialUser = testID
+
+    ???
+  }
 }

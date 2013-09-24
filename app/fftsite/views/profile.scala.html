@@ -1,0 +1,48 @@
+@(profileForm: Form[(fftsite.models.UserInformation, fftsite.models.DietaryInformation)])(implicit request: RequestHeader)
+
+@fftsite.views.html.main("Profile") {
+	    
+        <h2>Profile</h2>
+    
+    <h3>User information</h3>
+	
+	
+	<p>Please provide either your student ID or your employee ID. UCSD needs this information for its bookkeeping.</p>
+	
+	
+	
+  @helper.form(action = fftsite.controllers.routes.FFTSite.postProfile) {
+
+    @helper.inputText(profileForm("userInformation.studentID"),
+    	'_label -> "UCSD Student ID" 
+    )
+    
+    @helper.inputText(profileForm("userInformation.employeeID"),
+    	'_label -> "UCSD Employee ID"
+    )
+
+
+
+<h3>Dietary information</h3>
+
+   <p>We'll use this to make sure you eat what you like.</p>
+
+    @helper.inputText(profileForm("dietaryInformation.restrictions"),
+    	'_label -> "Dietary restrictions" 
+    )
+    
+    @helper.inputText(profileForm("dietaryInformation.preferences"),
+    	'_label -> "Dietary preferences" 
+    )
+    
+    @helper.textarea(profileForm("dietaryInformation.additionalNotes"),
+    	'_label -> "Additional notes" 
+    )
+
+<div class="form-actions">
+<button type="submit" class="btn btn-primary">Save</button>
+<a class="btn" href="@fftsite.controllers.routes.FFTSite.getProfile">Cancel</a>
+</div>
+
+}
+}

@@ -1,0 +1,23 @@
+@(signUpForm: Form[List[Boolean]])(implicit request: RequestHeader)
+
+@fftsite.views.html.main("Sign ups") {
+	    
+        <h2>Sign ups</h2>
+    	
+	
+  @helper.form(action = fftsite.controllers.routes.FFTSite.postSignUp) {
+
+    
+
+    @helper.checkbox(signUpForm("userInformation.studentID"),
+    	'_label -> "UCSD Student ID" 
+    )
+    
+
+<div class="form-actions">
+<button type="submit" class="btn btn-primary">Save</button>
+<a class="btn" href="@fftsite.controllers.routes.FFTSite.getSignUp">Cancel</a>
+</div>
+
+}
+}

@@ -1,3 +1,5 @@
+@()(implicit request: RequestHeader)
+
 @fftsite.views.html.main("FFT FAQ") {
   @fftsite.controllers.FFTSite.resourceMarkdownToHTML("/markdown/faq.md")
 }

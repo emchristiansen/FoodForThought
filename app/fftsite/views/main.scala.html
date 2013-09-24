@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String)(content: Html)(implicit request: RequestHeader)
 
 @navbarItemHTML(navbarItem: String, navbarURL: String) = {
   <li class=@{ if (title.contains(navbarItem)) "active" else "" }>
@@ -83,7 +83,11 @@
   </div>
   </div>
 
-
+    @request.flash.get("fftmessage").map { msg =>
+    <div class="alert alert-error">
+        @msg
+    </div>
+    }
   
   <div class="container">  
     @content
@@ -91,7 +95,7 @@
     <hr>
     
     <footer>
-      <p>Built with <a href="http://www.playframework.com/">Play</a> and <a href="http://twitter.github.io/bootstrap/index.html">Bootstrap</a>, licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
+      <p>Built with <a href="http://www.scala-lang.org">Scala</a> and <a href="http://www.playframework.com/">Play</a>, licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
     </footer>
     </div>
   </body>

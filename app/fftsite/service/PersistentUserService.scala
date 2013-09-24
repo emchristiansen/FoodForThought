@@ -49,7 +49,7 @@ class PersistentUserService(application: Application) extends UserServicePlugin(
   override def find(id: IdentityId): Option[SocialUser] = {
     debugUsersAndTokens("find")
     
-    users.get(id.userId + id.providerId)
+    users.get(id)
   }
 
   override def findByEmailAndProvider(email: String, providerId: String): Option[SocialUser] = {
@@ -57,13 +57,13 @@ class PersistentUserService(application: Application) extends UserServicePlugin(
     
     users.values.find(u => u.email.map(e => e == email && u.identityId.providerId == providerId).getOrElse(false))
   }
-
+  
   override def save(user: Identity): SocialUser = {
     debugUsersAndTokens("save Identity")
 
     val socialUser = user.asInstanceOf[SocialUser]
     
-    users += (socialUser.identityId.userId + socialUser.identityId.providerId -> socialUser)
+    users += (socialUser.identityId -> socialUser)
 
     // this sample returns the same user object, but you could return an instance of your own class
     // here as long as it implements the Identity trait. This will allow you to use your own class in the protected
