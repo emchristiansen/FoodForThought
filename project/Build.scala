@@ -13,7 +13,7 @@ object ApplicationBuild extends Build {
     anorm,
     "org.pegdown" % "pegdown" % "1.3.0",
     //    "com.typesafe.slick" %% "slick" % "1.0.1",
-    "emchristiansen" %% "scalatest-extra" % "0.2-SNAPSHOT",
+    "emchristiansen" %% "scalatest-extra" % "0.3-SNAPSHOT",
     "org.jumpmind.symmetric.jdbc" % "mariadb-java-client" % "1.1.1",
     //    "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT",
     "securesocial" %% "securesocial" % "master-2.2-SNAPSHOT")

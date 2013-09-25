@@ -20,6 +20,8 @@ import play.api.data.Forms._
 import play.api.data.validation.Constraints._
 import securesocial.core._
 
+import scalatestextra._
+
 object FFTSite extends Controller with securesocial.core.SecureSocial {
   val updateSaved = "fftUpdateSaved"
 
@@ -108,23 +110,143 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
       })
   }
 
-  val signUpForm = Form(
-    "freshFood" -> list(boolean))
+  val numDays = 5
+
+  //  val signUpForm = Form(tuple(
+  //    "freshFood" -> seq(boolean),
+  //    "cleaning" -> seq(boolean)))
+
+  type ManyBooleans = (Boolean, Boolean, Boolean, Boolean, Boolean, Boolean, Boolean, Boolean, Boolean, Boolean, Seq[Int])
+
+  // This hard-coding is a hack to work around an apparent Play bug.
+  val signUpForm: Form[ManyBooleans] = Form(tuple(
+    "freshFood0" -> boolean,
+    "freshFood1" -> boolean,
+    "freshFood2" -> boolean,
+    "freshFood3" -> boolean,
+    "freshFood4" -> boolean,
+    "cleaning0" -> boolean,
+    "cleaning1" -> boolean,
+    "cleaning2" -> boolean,
+    "cleaning3" -> boolean,
+    "cleaning4" -> boolean,
+    "meals" -> seq(number(0, 8))))
+
+  def dates: Seq[LocalDate] = {
+    val today = new LocalDate
+    val allFollowing = Stream.from(0) map (today.plusDays)
+    // Filter out Saturdays and Sundays.
+    // The week is 1-indexed, with 1 -> Monday.
+    allFollowing filter (_.getDayOfWeek <= 5) take (numDays) toList
+  }
+
+  def freshFoodVolunteers =
+    dates map (Models.freshFoodSignUp.get) map (_.map(Models.users.apply))
+
+  def cleaningVolunteers =
+    dates map (Models.cleaningSignUp.get) map (_.map(Models.users.apply))
+
+  def meals =
+    dates map (Models.mealsSignUp.getOrElse(_, Map[IdentityId, Int]())) map {
+      _.map {
+        case (id, numMeals) => (Models.users.apply(id), numMeals)
+      }
+    }
 
   def getSignUp = UserAwareAction { implicit request =>
     val user: SocialUser = testID
 
-    def nextDays(
-      roster: Map[String, IdentityId],
-      numDays: Int): List[(LocalDate, IdentityId)] = ???
+    val signUpFormOpenings = {
+      val freshFoodOpenings = freshFoodVolunteers map (_.isDefined)
+      val cleaningOpenings = cleaningVolunteers map (_.isDefined)
+      val userMeals = meals map {
+        _.getOrElse(user, 0)
+      }
+      //      signUpForm.fill(freshFoodOpenings.toList, cleaningOpenings.toList)
+      signUpForm.fill(
+        freshFoodOpenings(0),
+        freshFoodOpenings(1),
+        freshFoodOpenings(2),
+        freshFoodOpenings(3),
+        freshFoodOpenings(4),
+        cleaningOpenings(0),
+        cleaningOpenings(1),
+        cleaningOpenings(2),
+        cleaningOpenings(3),
+        cleaningOpenings(4),
+        userMeals)
+    }
 
-    Ok(views.html.signUp(signUpForm.fill(List(false, false, false))))
+    //        val freshFoodOpenings: Seq[LocalDate] = 
+    //      dates.zip(freshFoodVolunteers) filter (!_._2.isDefined) map (_._1)
+    //      
+    //    val signUpFormOpenings = {
+    //      signUpForm.fill((0 until freshFoodOpenings.size).toList map (_ => false))
+    //    } 
+
+    Ok(views.html.signUp(
+      user,
+      dates,
+      freshFoodVolunteers,
+      cleaningVolunteers,
+      meals,
+      signUpFormOpenings))
 
   }
-  
+
   def postSignUp = UserAwareAction { implicit request =>
     val user: SocialUser = testID
 
-    ???
+    signUpForm.bindFromRequest.fold(
+      formWithErrors =>
+        BadRequest(views.html.signUp(
+          user,
+          dates,
+          freshFoodVolunteers,
+          cleaningVolunteers,
+          meals,
+          formWithErrors)),
+      value => {
+        val freshFoodCheckboxes = Seq(
+          value._1,
+          value._2,
+          value._3,
+          value._4,
+          value._5)
+
+        val cleaningCheckboxes = Seq(
+          value._6,
+          value._7,
+          value._8,
+          value._9,
+          value._10)
+
+        //        val (freshFoodCheckboxes, cleaningCheckboxes) = value
+
+        def exclusiveSignUp(
+          existingVolunteers: Seq[Option[SocialUser]],
+          checkboxes: Seq[Boolean],
+          persistentMap: PersistentMap[LocalDate, IdentityId]) {
+          assert(existingVolunteers.size == numDays)
+          println(checkboxes.size)
+          assert(checkboxes.size == numDays)
+
+          for (index <- 0 until numDays) {
+            // If this user was already signed up but he unchecked the box.
+            if (existingVolunteers(index) == Some(user) && checkboxes(index) == false) {
+              persistentMap -= dates(index)
+            }
+            // Nobody was signed up, and this user checked the box.
+            if (existingVolunteers(index) == None && checkboxes(index) == true) {
+              persistentMap += dates(index) -> user.identityId
+            }
+          }
+        }
+
+        exclusiveSignUp(freshFoodVolunteers, freshFoodCheckboxes, Models.freshFoodSignUp)
+        exclusiveSignUp(cleaningVolunteers, cleaningCheckboxes, Models.cleaningSignUp)
+
+        Redirect(fftsite.controllers.routes.FFTSite.getSignUp)
+      })
   }
 }

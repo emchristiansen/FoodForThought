@@ -1,17 +1,89 @@
-@(signUpForm: Form[List[Boolean]])(implicit request: RequestHeader)
+@(user: securesocial.core.SocialUser, 
+	dates: Seq[org.joda.time.LocalDate], 
+	freshFoodVolunteers: Seq[Option[securesocial.core.SocialUser]], 
+	cleaningVolunteers: Seq[Option[securesocial.core.SocialUser]], 
+	meals: Seq[Map[securesocial.core.SocialUser, Int]],
+	signUpForm: Form[fftsite.controllers.FFTSite.ManyBooleans])(implicit request: RequestHeader)
+
+@import helper.twitterBootstrap._
+
+@viewDate(date: org.joda.time.LocalDate) = @{
+  val day = date.getDayOfWeek() match {
+  	case 1 => "Monday"
+  	case 2 => "Tuesday"
+  	case 3 => "Wednesday"
+  	case 4 => "Thursday"
+  	case 5 => "Friday"
+  	case 6 => "Saturday"
+  	case 7 => "Sunday" 
+  } 
+  
+  s"$day, ${date.getMonthOfYear()}/${date.getDayOfMonth()}"
+}
+
+@singleSignUpTable(volunteers: Seq[Option[securesocial.core.SocialUser]], indexString: Int => String) = {
+<table class="table"> 
+<tr>
+<td><h4>Date</h4></td>
+    @for(date <- dates) {
+    	<td>
+    	@viewDate(date)
+    	</td>
+    }
+</tr>
+    
+    <tr>
+    <td><h4>Current volunteer</h4></td>
+    @for(volunteer <- volunteers) {
+      <td>
+      @volunteer match {
+      	case Some(socialUser) => { @socialUser.fullName }
+      	case None => { No volunteer }
+      }	
+      </td>
+    }
+    </tr>
+    
+    <tr>
+    <td><h4>Sign up</h4></td>
+    @for(index <- 0 until dates.size) {
+    	<td>
+      @volunteers(index) match {
+      	case Some(volunteer) if (volunteer != user) => {
+      	  	Taken
+      	}
+      	case _ => {
+      	  @helper.checkbox(signUpForm(indexString(index)))
+      	}
+      }	
+      </td>
+    }
+    </tr>
+    
+</table>    
+}
 
 @fftsite.views.html.main("Sign ups") {
 	    
         <h2>Sign ups</h2>
-    	
 	
   @helper.form(action = fftsite.controllers.routes.FFTSite.postSignUp) {
 
-    
+<h3>Fresh food fetcher</h3>
+<p>This person picks up lunch for the group, the leftovers of which will become dinner.
+Volunteer here, or see who is already signed up.
+</p>
 
-    @helper.checkbox(signUpForm("userInformation.studentID"),
-    	'_label -> "UCSD Student ID" 
-    )
+@singleSignUpTable(freshFoodVolunteers, (index: Int) => s"freshFood$index")
+
+
+    
+<h3>Neat freak</h3>
+<p>This person is responsible for the tidiness of the eating area</p>
+
+@singleSignUpTable(cleaningVolunteers, (index: Int) => s"cleaning$index")
+
+<h3>Meals</h3>    
     
 
 <div class="form-actions">

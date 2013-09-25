@@ -14,6 +14,8 @@ import scala.pickling.binary._
 import scala.slick.driver.SQLiteDriver.simple._
 import play.api.db.DB
 import play.api.Play.current
+import org.joda.time._
+import scalatestextra._
 
 case class UserInformation(studentID: Option[String], employeeID: Option[String])
 
@@ -35,12 +37,13 @@ object Models {
   val dietaryInformation =
     PersistentMap.connectElseCreate[IdentityId, DietaryInformation]("dietaryInformation", database)
     
-  // We're storing dates as strings because DateTime serialization is currently
-  // broken.
   val freshFoodSignUp =
-    PersistentMap.connectElseCreate[String, IdentityId]("freshFoodSignUp", database)
-  val stockedFoodSignUp =
-    PersistentMap.connectElseCreate[String, IdentityId]("stockedFoodSignUp", database)
+    PersistentMap.connectElseCreate[LocalDate, IdentityId]("freshFoodSignUp", database)
+//  val stockedFoodSignUp =
+//    PersistentMap.connectElseCreate[LocalDate, IdentityId]("stockedFoodSignUp", database)
   val cleaningSignUp =
-    PersistentMap.connectElseCreate[String, IdentityId]("cleaningSignUp", database)
+    PersistentMap.connectElseCreate[LocalDate, IdentityId]("cleaningSignUp", database)
+    
+  val mealsSignUp =
+    PersistentMap.connectElseCreate[LocalDate, Map[IdentityId, Int]]("mealsSignUp", database)
 }

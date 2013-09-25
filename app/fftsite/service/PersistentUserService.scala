@@ -22,8 +22,6 @@ import securesocial.core._
 import securesocial.core.providers.Token
 import securesocial.core.IdentityId
 
-import scalatestextra._
-
 import scala.pickling._
 import scala.pickling.binary._
 
@@ -32,6 +30,8 @@ import play.api.db.DB
 import play.api.Play.current
 
 import models.Models._
+
+import scalatestextra._
 
 /**
  * A Sample In Memory user service in Scala
