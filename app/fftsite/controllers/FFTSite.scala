@@ -68,17 +68,8 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
   }
 
   // TODO: Delete this.
-  def testID = Models.users(IdentityId("echristiansen@eng.ucsd.edu", "userpass"))
+  //  def testID = Models.users(IdentityId("echristiansen@eng.ucsd.edu", "userpass"))
   //  def testID = Models.users(IdentityId("echristiansen@cs.ucsd.edu", "userpass"))
-
-  //  val userInformationForm = Form(mapping(
-  //    "studentID" -> optional(text),
-  //    "employeeID" -> optional(text))(UserInformation.apply)(UserInformation.unapply))
-  //
-  //  val dietaryInformationForm = Form(mapping(
-  //    "restrictions" -> optional(text),
-  //    "preferences" -> optional(text),
-  //    "additionalNotes" -> optional(text))(DietaryInformation.apply)(DietaryInformation.unapply))
 
   val profileForm = Form(tuple(
     "userInformation" -> mapping(
@@ -90,8 +81,8 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
       "additionalNotes" -> optional(text))(DietaryInformation.apply)(DietaryInformation.unapply)))
 
   // TODO: Change to SecuredAction
-  def getProfile = UserAwareAction { implicit request =>
-    val user: SocialUser = testID
+  def getProfile = SecuredAction { implicit request =>
+    val user: SocialUser = request.user.asInstanceOf[SocialUser]
 
     val userInformation = Models.userInformation.getOrElse(
       user.identityId,
@@ -105,8 +96,8 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
   }
 
   // TODO: Add flashing.
-  def postProfile = UserAwareAction { implicit request =>
-    val user: SocialUser = testID
+  def postProfile = SecuredAction { implicit request =>
+    val user: SocialUser = request.user.asInstanceOf[SocialUser]
 
     profileForm.bindFromRequest.fold(
       formWithErrors =>
@@ -161,8 +152,8 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
       }
     }
 
-  def getSignUp = UserAwareAction { implicit request =>
-    val user: SocialUser = testID
+  def getSignUp = SecuredAction { implicit request =>
+    val user: SocialUser = request.user.asInstanceOf[SocialUser]
 
     val signUpFormOpenings = {
       val freshFoodOpenings = freshFoodVolunteers map (_.isDefined)
@@ -202,8 +193,8 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
 
   }
 
-  def postSignUp = UserAwareAction { implicit request =>
-    val user: SocialUser = testID
+  def postSignUp = SecuredAction { implicit request =>
+    val user: SocialUser = request.user.asInstanceOf[SocialUser]
 
     signUpForm.bindFromRequest.fold(
       formWithErrors =>
@@ -285,8 +276,8 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
     "amount" -> (bigDecimal verifying Constraints.min(0: BigDecimal, true)),
     "notes" -> text)(ReimbursementPart.apply)(ReimbursementPart.unapply))
 
-  def getReimbursements = UserAwareAction { implicit request =>
-    val user: SocialUser = testID
+  def getReimbursements = SecuredAction { implicit request =>
+    val user: SocialUser = request.user.asInstanceOf[SocialUser]
 
     Ok(views.html.reimbursements(
       Models.reimbursementRequests.getOrElse(user.identityId, Nil).toList,
@@ -297,43 +288,48 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
   }
 
   def postReimbursements = UserAwareAction(parse.multipartFormData) { implicit request =>
-    val user: SocialUser = testID
+    if (!request.user.isDefined) {
+      Redirect(fftsite.controllers.routes.FFTSite.getReimbursements)
+    } else {
 
-    request.body.file("receiptPhoto").map { picture =>
-      reimbursementPartForm.bindFromRequest.fold(
-        formWithErrors => BadRequest(views.html.reimbursements(
-          Models.reimbursementRequests.getOrElse(user.identityId, Nil).toList,
-          formWithErrors)),
-        value => {
-          val storageFile = File.createTempFile(
-            "receipt",
-            picture.filename,
-            new File(new File(Play.application.path.getPath), "/public/receipts"))
+      val user: SocialUser = request.user.get.asInstanceOf[SocialUser]
 
-          picture.ref.moveTo(storageFile, true)
+      request.body.file("receiptPhoto").map { picture =>
+        reimbursementPartForm.bindFromRequest.fold(
+          formWithErrors => BadRequest(views.html.reimbursements(
+            Models.reimbursementRequests.getOrElse(user.identityId, Nil).toList,
+            formWithErrors)),
+          value => {
+            val storageFile = File.createTempFile(
+              "receipt",
+              picture.filename,
+              new File(new File(Play.application.path.getPath), "/public/receipts"))
 
-          val reimbursementRequest = ReimbursementRequest(
-            new util.Random().nextLong,
-            value,
-            storageFile.getName)
+            picture.ref.moveTo(storageFile, true)
 
-          val previousRequests = Models.reimbursementRequests.getOrElse(user.identityId, Nil)
-          val newRequests = (reimbursementRequest +: previousRequests.toList).toList
-          //          newRequests.pickle
-          Models.reimbursementRequests += user.identityId -> newRequests.toSet
+            val reimbursementRequest = ReimbursementRequest(
+              new util.Random().nextLong,
+              value,
+              storageFile.getName)
 
-          Redirect(fftsite.controllers.routes.FFTSite.getReimbursements)
-        })
-    }.getOrElse(Redirect(fftsite.controllers.routes.FFTSite.getReimbursements))
+            val previousRequests = Models.reimbursementRequests.getOrElse(user.identityId, Nil)
+            val newRequests = (reimbursementRequest +: previousRequests.toList).toList
+            //          newRequests.pickle
+            Models.reimbursementRequests += user.identityId -> newRequests.toSet
+
+            Redirect(fftsite.controllers.routes.FFTSite.getReimbursements)
+          })
+      }.getOrElse(Redirect(fftsite.controllers.routes.FFTSite.getReimbursements))
+    }
   }
 
-  def getDeleteReimbursement(uuid: Long) = UserAwareAction { implicit request =>
-    val user: SocialUser = testID
+  def getDeleteReimbursement(uuid: Long) = SecuredAction { implicit request =>
+    val user: SocialUser = request.user.asInstanceOf[SocialUser]
 
     val oldRequests = Models.reimbursementRequests.getOrElse(user.identityId, Nil).toList
     val newRequests = oldRequests.filter(_.uuid != uuid)
     Models.reimbursementRequests += user.identityId -> newRequests.toSet
-    
+
     Ok(views.html.reimbursements(
       Models.reimbursementRequests.getOrElse(user.identityId, Nil).toList,
       reimbursementPartForm))
