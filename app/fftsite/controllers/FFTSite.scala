@@ -33,7 +33,9 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
   val updateSaved = "fftUpdateSaved"
 
   def loadResourceAsString(resource: String): String = {
-    val file = getClass.getResource(resource).getFile
+    val file = new File(new File(new File(Play.application.path.getPath), "/public/"), resource)
+    
+//    val file = getClass.getResource(resource).getFile
     scala.io.Source.fromFile(file).mkString
   }
 
