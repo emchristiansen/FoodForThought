@@ -2,12 +2,14 @@ package fftsite.controllers
 
 import fftsite._
 
+import java.io.File
 import org.joda.time._
 import fftsite.models._
 
 import play.api.mvc.Action
 import play.api.mvc.Controller
 import play.api.templates.Html
+import play.api.Play
 import java.io.File
 import play.api.data._
 import play.api.data.Forms._
@@ -20,6 +22,11 @@ import play.api.data.Forms._
 import play.api.data.validation.Constraints._
 import securesocial.core._
 
+import play.api.data.validation.Constraints
+
+import scala.pickling._
+import scala.pickling.binary._
+
 import scalatestextra._
 
 object FFTSite extends Controller with securesocial.core.SecureSocial {
@@ -27,7 +34,7 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
 
   def loadResourceAsString(resource: String): String = {
     val file = getClass.getResource(resource).getFile
-    io.Source.fromFile(file).mkString
+    scala.io.Source.fromFile(file).mkString
   }
 
   def markdownToHTML(markdown: String) =
@@ -62,6 +69,7 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
 
   // TODO: Delete this.
   def testID = Models.users(IdentityId("echristiansen@eng.ucsd.edu", "userpass"))
+  //  def testID = Models.users(IdentityId("echristiansen@cs.ucsd.edu", "userpass"))
 
   //  val userInformationForm = Form(mapping(
   //    "studentID" -> optional(text),
@@ -221,6 +229,8 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
           value._9,
           value._10)
 
+        val mealCounts = value._11
+
         //        val (freshFoodCheckboxes, cleaningCheckboxes) = value
 
         def exclusiveSignUp(
@@ -246,7 +256,98 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
         exclusiveSignUp(freshFoodVolunteers, freshFoodCheckboxes, Models.freshFoodSignUp)
         exclusiveSignUp(cleaningVolunteers, cleaningCheckboxes, Models.cleaningSignUp)
 
+        for (index <- 0 until numDays) {
+          val currentMealSignUps = Models.mealsSignUp.getOrElse(dates(index), Map[IdentityId, Int]())
+
+          val newMealSignUps = {
+            // If the user's meal count is zero, drop him from the map.
+            if (mealCounts(index) == 0) currentMealSignUps - user.identityId
+            else currentMealSignUps + (user.identityId -> mealCounts(index))
+          }
+
+          Models.mealsSignUp(dates(index)) = newMealSignUps
+
+        }
+
         Redirect(fftsite.controllers.routes.FFTSite.getSignUp)
       })
+  }
+
+  //  val reimbursementRequestForm = Form(tuple(
+  //    "date" -> jodaLocalDate,
+  //    "expenseType" -> nonEmptyText,
+  //    "amount" -> number(0, 10000),
+  //    "notes" -> text))
+
+  val reimbursementPartForm = Form(mapping(
+    "date" -> jodaLocalDate,
+    "expenseType" -> nonEmptyText,
+    "amount" -> (bigDecimal verifying Constraints.min(0: BigDecimal, true)),
+    "notes" -> text)(ReimbursementPart.apply)(ReimbursementPart.unapply))
+
+  def getReimbursements = UserAwareAction { implicit request =>
+    val user: SocialUser = testID
+
+    Ok(views.html.reimbursements(
+      Models.reimbursementRequests.getOrElse(user.identityId, Nil).toList,
+      reimbursementPartForm))
+    //    Ok(views.html.reimbursements(
+    //      Nil,
+    //      reimbursementPartForm))
+  }
+
+  def postReimbursements = UserAwareAction(parse.multipartFormData) { implicit request =>
+    val user: SocialUser = testID
+
+    request.body.file("receiptPhoto").map { picture =>
+      reimbursementPartForm.bindFromRequest.fold(
+        formWithErrors => BadRequest(views.html.reimbursements(
+          Models.reimbursementRequests.getOrElse(user.identityId, Nil).toList,
+          formWithErrors)),
+        value => {
+          val storageFile = File.createTempFile(
+            "receipt",
+            picture.filename,
+            new File(new File(Play.application.path.getPath), "/public/receipts"))
+
+          picture.ref.moveTo(storageFile, true)
+
+          val reimbursementRequest = ReimbursementRequest(
+            new util.Random().nextLong,
+            value,
+            storageFile.getName)
+
+          val previousRequests = Models.reimbursementRequests.getOrElse(user.identityId, Nil)
+          val newRequests = (reimbursementRequest +: previousRequests.toList).toList
+          //          newRequests.pickle
+          Models.reimbursementRequests += user.identityId -> newRequests.toSet
+
+          Redirect(fftsite.controllers.routes.FFTSite.getReimbursements)
+        })
+    }.getOrElse(Redirect(fftsite.controllers.routes.FFTSite.getReimbursements))
+  }
+
+  def getDeleteReimbursement(uuid: Long) = UserAwareAction { implicit request =>
+    val user: SocialUser = testID
+
+    val oldRequests = Models.reimbursementRequests.getOrElse(user.identityId, Nil).toList
+    val newRequests = oldRequests.filter(_.uuid != uuid)
+    Models.reimbursementRequests += user.identityId -> newRequests.toSet
+    
+    Ok(views.html.reimbursements(
+      Models.reimbursementRequests.getOrElse(user.identityId, Nil).toList,
+      reimbursementPartForm))
+  }
+
+  def getToday = Action { implicit request =>
+    val date = dates.head
+    val freshFoodVolunteer = freshFoodVolunteers.head
+    val cleaningVolunteer = cleaningVolunteers.head
+
+    val eaters = (meals.head map {
+      case (socialUser, numMeals) => (socialUser, numMeals, Models.dietaryInformation.get(socialUser.identityId))
+    }).toSeq
+
+    Ok(views.html.today(date, freshFoodVolunteer, cleaningVolunteer, eaters.sortBy(_._1.firstName)))
   }
 }

@@ -24,6 +24,17 @@ case class DietaryInformation(
   preferences: Option[String],
   additionalNotes: Option[String])
 
+case class ReimbursementPart(
+  date: LocalDate,
+  expenseType: String,
+  amount: BigDecimal,
+  notes: String)
+
+case class ReimbursementRequest(
+  uuid: Long,
+  reimbursementPart: ReimbursementPart,
+  receiptPhotoName: String)
+
 object Models {
   private val database = Database.forDataSource(DB.getDataSource("default"))
 
@@ -36,14 +47,21 @@ object Models {
     PersistentMap.connectElseCreate[IdentityId, UserInformation]("userInformation", database)
   val dietaryInformation =
     PersistentMap.connectElseCreate[IdentityId, DietaryInformation]("dietaryInformation", database)
-    
+
   val freshFoodSignUp =
     PersistentMap.connectElseCreate[LocalDate, IdentityId]("freshFoodSignUp", database)
-//  val stockedFoodSignUp =
-//    PersistentMap.connectElseCreate[LocalDate, IdentityId]("stockedFoodSignUp", database)
+  //  val stockedFoodSignUp =
+  //    PersistentMap.connectElseCreate[LocalDate, IdentityId]("stockedFoodSignUp", database)
   val cleaningSignUp =
     PersistentMap.connectElseCreate[LocalDate, IdentityId]("cleaningSignUp", database)
-    
+
   val mealsSignUp =
     PersistentMap.connectElseCreate[LocalDate, Map[IdentityId, Int]]("mealsSignUp", database)
+
+  val reimbursementRequests =
+    PersistentMap.connectElseCreate[IdentityId, Set[ReimbursementRequest]]("reimbursementRequests", database)
+}
+
+trait PicklerImplicits {
+  
 }

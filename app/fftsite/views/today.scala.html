@@ -1,0 +1,41 @@
+@(localDate: org.joda.time.LocalDate,
+	foodFetcher: Option[securesocial.core.SocialUser], 
+	neatFreak: Option[securesocial.core.SocialUser], 
+	eaters: Seq[(securesocial.core.SocialUser, Int, Option[fftsite.models.DietaryInformation])])(implicit request: RequestHeader)
+
+@fftsite.views.html.main("Today") {
+  <h3>Date: @localDate.toString</h3>
+  
+	<hr>
+	
+  <h3>Food fetcher: @foodFetcher.map(_.fullName).getOrElse("No volunteer!")</h3>
+  
+  <hr>
+  
+  <h3>Neat freak: @neatFreak.map(_.fullName).getOrElse("No volunteer!")</h3>
+  
+  <hr>
+  
+  <h3>Number of fresh meals: @eaters.map(_._2).sum</h3>
+  
+  <table class="table"> 
+  <tr>
+  <td>Name</td>
+  <td>Number of meals</td>
+  <td>Dietary restrictions</td>
+  <td>Dietary preferences</td>
+  <td>Other notes</td>
+  </tr>
+  
+  @for((socialUser, numMeals, information) <- eaters) {
+  <tr>
+  <td>@socialUser.fullName</td>
+  <td>@numMeals</td>
+  <td>@information.map(_.restrictions).getOrElse("")</td>
+  <td>@information.map(_.preferences).getOrElse("")</td>
+  <td>@information.map(_.additionalNotes).getOrElse("")</td>
+  </tr>	
+  }
+
+</table>
+}

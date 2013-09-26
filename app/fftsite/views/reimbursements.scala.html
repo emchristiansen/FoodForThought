@@ -1,0 +1,52 @@
+@(existingRequests: Seq[fftsite.models.ReimbursementRequest], reimbursementPartForm: Form[fftsite.models.ReimbursementPart])(implicit request: RequestHeader)
+
+@fftsite.views.html.main("Reimbursements") {
+	    
+	    <h2>Reimbursements</h2>
+	    
+        <h3>Request reimbursement</h3>
+	
+  @helper.form(
+  	action = fftsite.controllers.routes.FFTSite.postReimbursements,
+  	'enctype -> "multipart/form-data"
+  	) {
+
+    @helper.inputDate(reimbursementPartForm("date"), '_label -> "Date of purchase", '_help -> "")
+    @helper.inputText(reimbursementPartForm("expenseType"), '_label -> "Expense type, eg 'fresh food' or 'stocked food'", '_help -> "")
+    @helper.inputText(reimbursementPartForm("amount"), '_label -> "Reimbursement amount ($)", '_help -> "")
+    
+    @helper.inputFile(reimbursementPartForm("receiptPhoto"), '_label -> "Receipt photo or PDF")
+    
+    @helper.inputText(reimbursementPartForm("notes"), '_label -> "Notes (optional)")
+
+<div class="form-actions">
+<button type="submit" class="btn btn-primary">Save</button>
+<a class="btn" href="@fftsite.controllers.routes.FFTSite.getReimbursements">Cancel</a>
+</div>
+
+}
+
+<h3>Existing reimbursements</h3>
+
+<table class="table"> 
+<tr>
+<td><h4>Date</h4></td>
+<td><h4>Expense type</h4></td>
+<td><h4>Amount ($)</h4></td>
+<td><h4>Photo</h4></td>
+<td><h4>Notes</h4></td>
+<td><h4>Edit</h4></td>
+</tr>
+
+@for(request <- existingRequests.sortBy(_.reimbursementPart.date.toString)) {
+<tr>
+<td>@request.reimbursementPart.date.toString</td>
+<td>@request.reimbursementPart.expenseType.toString</td>
+<td>@request.reimbursementPart.amount.toString</td>
+<td><a href=@controllers.routes.Assets.at(s"receipts/${request.receiptPhotoName}")>Link</a></td>
+<td>@request.reimbursementPart.notes.toString</td>
+<td><button type="button" class="btn btn-danger" onclick="location.href='@fftsite.controllers.routes.FFTSite.getDeleteReimbursement(request.uuid)'">Delete</button></td>
+</tr>
+}
+</table>
+}
