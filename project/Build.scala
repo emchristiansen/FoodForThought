@@ -33,5 +33,8 @@ object ApplicationBuild extends Build {
       "-feature",
       "-language:postfixOps",
       "-language:existentials"),
+    resolvers += Resolver.file("LocalIvy", file(Path.userHome +
+      java.io.File.separator + ".ivy2" + java.io.File.separator +
+      "local"))(Resolver.ivyStylePatterns),
     libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-compiler" % _))
 }
