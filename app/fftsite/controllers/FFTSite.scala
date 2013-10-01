@@ -15,8 +15,6 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.db._
 import play.api.Play.current
-import slick.driver.H2Driver.simple._
-import slick.driver.H2Driver.simple.Database.threadLocalSession
 import scala.slick.jdbc.meta.MTable
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
@@ -28,6 +26,9 @@ import scala.pickling._
 import scala.pickling.binary._
 
 import scalatestextra._
+
+import st.sparse.persistentmap._
+import st.sparse.persistentmap.CustomPicklers._
 
 object FFTSite extends Controller with securesocial.core.SecureSocial {
   val updateSaved = "fftUpdateSaved"

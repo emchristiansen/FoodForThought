@@ -11,11 +11,13 @@ import scalatestextra._
 import scala.pickling._
 import scala.pickling.binary._
 
-import scala.slick.driver.SQLiteDriver.simple._
+import scala.slick.session.Database
 import play.api.db.DB
 import play.api.Play.current
 import org.joda.time._
 import scalatestextra._
+import st.sparse.persistentmap._
+import st.sparse.persistentmap.CustomPicklers._
 
 case class UserInformation(studentID: Option[String], employeeID: Option[String])
 
