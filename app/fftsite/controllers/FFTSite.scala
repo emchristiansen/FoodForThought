@@ -35,8 +35,8 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
 
   def loadResourceAsString(resource: String): String = {
     val file = new File(new File(new File(Play.application.path.getPath), "/public/"), resource)
-    
-//    val file = getClass.getResource(resource).getFile
+
+    //    val file = getClass.getResource(resource).getFile
     scala.io.Source.fromFile(file).mkString
   }
 
@@ -75,13 +75,21 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
   //  def testID = Models.users(IdentityId("echristiansen@cs.ucsd.edu", "userpass"))
 
   val profileForm = Form(tuple(
-    "userInformation" -> mapping(
+    "userInformationPart" -> mapping(
       "studentID" -> optional(text),
       "employeeID" -> optional(text))(UserInformation.apply)(UserInformation.unapply),
+    "employmentQuarter" -> optional(text),
+    "employmentStatus" -> optional(text),
     "dietaryInformation" -> mapping(
       "restrictions" -> optional(text),
       "preferences" -> optional(text),
-      "additionalNotes" -> optional(text))(DietaryInformation.apply)(DietaryInformation.unapply)))
+      "additionalNotes" -> optional(text))(DietaryInformation.apply)(DietaryInformation.unapply)),
+    "consent" -> boolean verifying { _ == true })
+
+  def employmentHistory(identityId: IdentityId) =
+    Models.employmentHistory.getOrElse(
+      identityId,
+      EmploymentHistory(Map()))
 
   // TODO: Change to SecuredAction
   def getProfile = SecuredAction { implicit request =>
@@ -95,7 +103,14 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
       user.identityId,
       DietaryInformation(None, None, None))
 
-    Ok(views.html.profile(profileForm.fill((userInformation, dietaryInformation))))
+    Ok(views.html.profile(
+      employmentHistory(user.identityId),
+      profileForm.fill((
+        userInformation,
+        None,
+        None,
+        dietaryInformation,
+        false))))
   }
 
   // TODO: Add flashing.
@@ -104,12 +119,38 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
 
     profileForm.bindFromRequest.fold(
       formWithErrors =>
-        BadRequest(views.html.profile(formWithErrors)),
+        BadRequest(views.html.profile(
+          employmentHistory(user.identityId),
+          formWithErrors)),
       value => {
         Models.userInformation(user.identityId) = value._1
-        Models.dietaryInformation(user.identityId) = value._2
+        Models.dietaryInformation(user.identityId) = value._4
+
+        for (
+          employmentQuarterString <- value._2;
+          employmentStatusString <- value._3
+        ) {
+          val employmentQuarter = {
+            val List(year, quarter) = employmentQuarterString.split("-").toList
+            EmploymentQuarter(year.toInt, quarter.toInt)
+          }
+          val employmentStatus = employmentStatusString match {
+            case "Student" => Models.Student
+            case "Employee" => Models.Employee
+            case "Neither" => Models.Neither
+          }
+          Models.employmentHistory(user.identityId) +=
+            employmentQuarter -> employmentStatus
+        }
+
         Redirect(fftsite.controllers.routes.FFTSite.getProfile)
       })
+  }
+
+  def getDeleteEmploymentHistory = SecuredAction { implicit request =>
+    val user: SocialUser = request.user.asInstanceOf[SocialUser]
+
+    ???
   }
 
   val numDays = 5

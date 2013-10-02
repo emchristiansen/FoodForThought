@@ -44,7 +44,7 @@ object CustomRegistration extends Controller {
 
   val customEmail: Mapping[String] = email verifying (nonEmpty) verifying (
     "Address must be @cs.ucsd.edu or @eng.ucsd.edu",
-    e => e.contains("@cs.ucsd.edu") || e.contains("@eng.ucsd.edu") || e == "gvanhorn@ucsd.edu")
+    e => e.contains("@cs.ucsd.edu") || e.contains("@eng.ucsd.edu"))
 
   val startForm = Form(
     Email -> customEmail)

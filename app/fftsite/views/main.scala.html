@@ -82,14 +82,14 @@
     </div>
   </div>
   </div>
-
+  
+  <div class="container">
     @request.flash.get("fftmessage").map { msg =>
     <div class="alert alert-error">
         @msg
     </div>
     }
-  
-  <div class="container">  
+    
     @content
     
     <hr>

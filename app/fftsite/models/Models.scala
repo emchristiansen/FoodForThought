@@ -19,7 +19,36 @@ import scalatestextra._
 import st.sparse.persistentmap._
 import st.sparse.persistentmap.CustomPicklers._
 
-case class UserInformation(studentID: Option[String], employeeID: Option[String])
+case class YearAndQuarter(
+  year: Int,
+  quarter: Int) {
+  assert(quarter >= 0)
+  assert(quarter < 4)
+
+  def prettyString = year + " " + quarter match {
+    case 0 => "winter"
+    case 1 => "spring"
+    case 2 => "summer"
+    case 3 => "fall"
+  }
+}
+
+sealed trait EmploymentStatus { def prettyString: String }
+object Student extends EmploymentStatus {
+  override def prettyString = "Student"
+}
+object Employee extends EmploymentStatus {
+  override def prettyString = "Employee"
+}
+object Neither extends EmploymentStatus {
+  override def prettyString = "Neither"
+}
+
+case class UserInformation(
+  studentID: Option[String],
+  employeeID: Option[String])
+
+case class EmploymentHistory(history: Map[YearAndQuarter, EmploymentStatus])
 
 case class DietaryInformation(
   restrictions: Option[String],
@@ -47,6 +76,8 @@ object Models {
 
   val userInformation =
     PersistentMap.connectElseCreate[IdentityId, UserInformation]("userInformation", database)
+  val employmentHistory =
+    PersistentMap.connectElseCreate[IdentityId, EmploymentHistory]("employmentHistory", database)
   val dietaryInformation =
     PersistentMap.connectElseCreate[IdentityId, DietaryInformation]("dietaryInformation", database)
 
@@ -65,5 +96,5 @@ object Models {
 }
 
 trait PicklerImplicits {
-  
+
 }

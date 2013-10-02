@@ -1,27 +1,11 @@
-@(profileForm: Form[(fftsite.models.UserInformation, fftsite.models.DietaryInformation)])(implicit request: RequestHeader)
+@(employmentHistory: fftsite.models.EmploymentHistory,
+	profileForm: Form[(fftsite.models.UserInformation, Option[String], Option[String], fftsite.models.DietaryInformation, Boolean)])(implicit request: RequestHeader)
 
 @fftsite.views.html.main("Profile") {
 	    
         <h2>Profile</h2>
-    
-    <h3>User information</h3>
-	
-	
-	<p>Please provide either your student ID or your employee ID. UCSD needs this information for its bookkeeping.</p>
-	
-	
-	
+    	
   @helper.form(action = fftsite.controllers.routes.FFTSite.postProfile) {
-
-    @helper.inputText(profileForm("userInformation.studentID"),
-    	'_label -> "UCSD Student ID" 
-    )
-    
-    @helper.inputText(profileForm("userInformation.employeeID"),
-    	'_label -> "UCSD Employee ID"
-    )
-
-
 
 <h3>Dietary information</h3>
 
@@ -38,6 +22,66 @@
     @helper.textarea(profileForm("dietaryInformation.additionalNotes"),
     	'_label -> "Additional notes" 
     )
+
+<h3>User information</h3>
+	
+	<p>Please provide either your student ID or your employee ID. UCSD needs this information for its bookkeeping.</p>
+
+    @helper.inputText(profileForm("userInformation.studentID"),
+    	'_label -> "UCSD Student ID" 
+    )
+    
+    @helper.inputText(profileForm("userInformation.employeeID"),
+    	'_label -> "UCSD Employee ID"
+    )
+    
+ <h3>Employment history</h3>
+    
+    <p>For each quarter you have participated in Food for Thought, please add your employment type at UCSD.
+    (You may have to submit the form several times, I'm new to this).
+    If you were a TA, select the "Student" status.
+    If you were an RA, select the "Employee" status.
+    Our record of your employment status is displayed below.</p>
+
+    @helper.inputRadioGroup(
+          profileForm("employmentQuarter"),
+          options = helper.options(
+          	"2013 spring"->"2013-1",
+          	"2013 summer"->"2013-2",
+          	"2013 fall"->"2013-3"),
+          '_label -> "Quarter")
+          
+@helper.inputRadioGroup(
+          profileForm("employmentStatus"),
+          options = helper.options(
+          	"Student"->"Student",
+          	"Employee"->"Employee",
+          	"Neither"->"Neither"),
+          '_label -> "Employment status")          
+
+<table class="table"> 
+<tr>
+<td><h4>Quarter</h4></td>
+<td><h4>Employment status</h4></td>
+<td><h4>Edit</h4></td>
+</tr>
+
+@for((yearAndQuarter, status) <- employmentHistory.history.toList.sortBy(_._1)) {
+<tr>
+<td>@yearAndQuarter.prettyString</td>
+<td>@status.prettyString</td>
+<td><button type="button" class="btn btn-danger" onclick="location.href='@fftsite.controllers.routes.FFTSite.getDeleteEmploymentHistory(@yearAndQuarter.toString)'">Delete</button></td>
+</tr>
+}
+</table>
+
+<h3>Consent to be taxed</h3>
+
+UCSD will likely treat Food for Thought as a taxable benefit.
+This means that if you are an employee, you will likely need to pay tax on the food you eat (assessed on a quarter-by-quarter basis).
+If you are a student, you probably will not need to pay taxes, but there are no guarantees.
+
+@helper.checkbox(profileForm("consent"), '_label -> "I understand and consent. (Required)", '_help -> "")
 
 <div class="form-actions">
 <button type="submit" class="btn btn-primary">Save</button>
