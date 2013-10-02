@@ -66,11 +66,11 @@
 <td><h4>Edit</h4></td>
 </tr>
 
-@for((yearAndQuarter, status) <- employmentHistory.history.toList.sortBy(_._1)) {
+@for((yearAndQuarter, status) <- employmentHistory.history.toList.sortBy(_._1.toSortable)) {
 <tr>
 <td>@yearAndQuarter.prettyString</td>
 <td>@status.prettyString</td>
-<td><button type="button" class="btn btn-danger" onclick="location.href='@fftsite.controllers.routes.FFTSite.getDeleteEmploymentHistory(@yearAndQuarter.toString)'">Delete</button></td>
+<td><button type="button" class="btn btn-danger" onclick="location.href='@fftsite.controllers.routes.FFTSite.getDeleteEmploymentHistory(yearAndQuarter.toString)'">Delete</button></td>
 </tr>
 }
 </table>

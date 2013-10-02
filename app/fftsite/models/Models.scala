@@ -25,12 +25,14 @@ case class YearAndQuarter(
   assert(quarter >= 0)
   assert(quarter < 4)
 
-  def prettyString = year + " " + quarter match {
+  def prettyString = year + " " + (quarter match {
     case 0 => "winter"
     case 1 => "spring"
     case 2 => "summer"
     case 3 => "fall"
-  }
+  })
+  
+  def toSortable = year * 10 + quarter
 }
 
 sealed trait EmploymentStatus { def prettyString: String }

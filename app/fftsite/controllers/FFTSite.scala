@@ -83,8 +83,8 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
     "dietaryInformation" -> mapping(
       "restrictions" -> optional(text),
       "preferences" -> optional(text),
-      "additionalNotes" -> optional(text))(DietaryInformation.apply)(DietaryInformation.unapply)),
-    "consent" -> boolean verifying { _ == true })
+      "additionalNotes" -> optional(text))(DietaryInformation.apply)(DietaryInformation.unapply),
+    "consent" -> (boolean verifying { _ == true })))
 
   def employmentHistory(identityId: IdentityId) =
     Models.employmentHistory.getOrElse(
@@ -132,26 +132,32 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
         ) {
           val employmentQuarter = {
             val List(year, quarter) = employmentQuarterString.split("-").toList
-            EmploymentQuarter(year.toInt, quarter.toInt)
+            YearAndQuarter(year.toInt, quarter.toInt)
           }
           val employmentStatus = employmentStatusString match {
-            case "Student" => Models.Student
-            case "Employee" => Models.Employee
-            case "Neither" => Models.Neither
+            case "Student" => Student
+            case "Employee" => Employee
+            case "Neither" => Neither
           }
-          Models.employmentHistory(user.identityId) +=
-            employmentQuarter -> employmentStatus
+          val current = employmentHistory(user.identityId)
+          Models.employmentHistory(user.identityId) = EmploymentHistory(
+            current.history + (employmentQuarter -> employmentStatus))
         }
 
         Redirect(fftsite.controllers.routes.FFTSite.getProfile)
       })
   }
 
-  def getDeleteEmploymentHistory = SecuredAction { implicit request =>
-    val user: SocialUser = request.user.asInstanceOf[SocialUser]
+  def getDeleteEmploymentHistory(yearAndQuarter: String) =
+    SecuredAction { implicit request =>
+      val user: SocialUser = request.user.asInstanceOf[SocialUser]
 
-    ???
-  }
+      val current = employmentHistory(user.identityId)
+      Models.employmentHistory(user.identityId) = EmploymentHistory(
+        current.history.filterKeys(_.toString != yearAndQuarter))
+
+      Redirect(fftsite.controllers.routes.FFTSite.getProfile)
+    }
 
   val numDays = 5
 
