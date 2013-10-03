@@ -43,8 +43,11 @@ object CustomRegistration extends Controller {
   import securesocial.controllers.Registration._
 
   val customEmail: Mapping[String] = email verifying (nonEmpty) verifying (
-    "Address must be @cs.ucsd.edu or @eng.ucsd.edu",
-    e => e.contains("@cs.ucsd.edu") || e.contains("@eng.ucsd.edu"))
+    "Address must be @cs.ucsd.edu, @eng.ucsd.edu, or @ucsd.edu",
+    e =>
+      e.contains("@cs.ucsd.edu") ||
+        e.contains("@eng.ucsd.edu") ||
+        e.contains("@ucsd.edu"))
 
   val startForm = Form(
     Email -> customEmail)
