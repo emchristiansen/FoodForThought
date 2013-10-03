@@ -84,7 +84,7 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
       "restrictions" -> optional(text),
       "preferences" -> optional(text),
       "additionalNotes" -> optional(text))(DietaryInformation.apply)(DietaryInformation.unapply),
-    "consent" -> (boolean verifying { _ == true })))
+    "consent" -> checked("You've gotta check this.")))
 
   def employmentHistory(identityId: IdentityId) =
     Models.employmentHistory.getOrElse(
@@ -134,11 +134,8 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
             val List(year, quarter) = employmentQuarterString.split("-").toList
             YearAndQuarter(year.toInt, quarter.toInt)
           }
-          val employmentStatus = employmentStatusString match {
-            case "Student" => Student
-            case "Employee" => Employee
-            case "Neither" => Neither
-          }
+          val employmentStatus = EmploymentStatus(employmentStatusString)
+          
           val current = employmentHistory(user.identityId)
           Models.employmentHistory(user.identityId) = EmploymentHistory(
             current.history + (employmentQuarter -> employmentStatus))
@@ -205,42 +202,38 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
   def getSignUp = SecuredAction { implicit request =>
     val user: SocialUser = request.user.asInstanceOf[SocialUser]
 
-    val signUpFormOpenings = {
-      val freshFoodOpenings = freshFoodVolunteers map (_.isDefined)
-      val cleaningOpenings = cleaningVolunteers map (_.isDefined)
-      val userMeals = meals map {
-        _.getOrElse(user, 0)
+    if (Models.userInformation.contains(user.identityId)) {
+      val signUpFormOpenings = {
+        val freshFoodOpenings = freshFoodVolunteers map (_.isDefined)
+        val cleaningOpenings = cleaningVolunteers map (_.isDefined)
+        val userMeals = meals map {
+          _.getOrElse(user, 0)
+        }
+        //      signUpForm.fill(freshFoodOpenings.toList, cleaningOpenings.toList)
+        signUpForm.fill(
+          freshFoodOpenings(0),
+          freshFoodOpenings(1),
+          freshFoodOpenings(2),
+          freshFoodOpenings(3),
+          freshFoodOpenings(4),
+          cleaningOpenings(0),
+          cleaningOpenings(1),
+          cleaningOpenings(2),
+          cleaningOpenings(3),
+          cleaningOpenings(4),
+          userMeals)
       }
-      //      signUpForm.fill(freshFoodOpenings.toList, cleaningOpenings.toList)
-      signUpForm.fill(
-        freshFoodOpenings(0),
-        freshFoodOpenings(1),
-        freshFoodOpenings(2),
-        freshFoodOpenings(3),
-        freshFoodOpenings(4),
-        cleaningOpenings(0),
-        cleaningOpenings(1),
-        cleaningOpenings(2),
-        cleaningOpenings(3),
-        cleaningOpenings(4),
-        userMeals)
+
+      Ok(views.html.signUp(
+        user,
+        dates,
+        freshFoodVolunteers,
+        cleaningVolunteers,
+        meals,
+        signUpFormOpenings))
+    } else {
+      Redirect(fftsite.controllers.routes.FFTSite.getProfile)
     }
-
-    //        val freshFoodOpenings: Seq[LocalDate] = 
-    //      dates.zip(freshFoodVolunteers) filter (!_._2.isDefined) map (_._1)
-    //      
-    //    val signUpFormOpenings = {
-    //      signUpForm.fill((0 until freshFoodOpenings.size).toList map (_ => false))
-    //    } 
-
-    Ok(views.html.signUp(
-      user,
-      dates,
-      freshFoodVolunteers,
-      cleaningVolunteers,
-      meals,
-      signUpFormOpenings))
-
   }
 
   def postSignUp = SecuredAction { implicit request =>

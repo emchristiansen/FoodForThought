@@ -4,6 +4,8 @@
 @fftsite.views.html.main("Profile") {
 	    
         <h2>Profile</h2>
+        
+        You must complete this page before you can sign up to eat.
     	
   @helper.form(action = fftsite.controllers.routes.FFTSite.postProfile) {
 
@@ -46,9 +48,13 @@
     @helper.inputRadioGroup(
           profileForm("employmentQuarter"),
           options = helper.options(
-          	"2013 spring"->"2013-1",
-          	"2013 summer"->"2013-2",
-          	"2013 fall"->"2013-3"),
+          	"2013-1" -> "2013 spring",
+          	"2013-2" -> "2013 summer",
+          	"2013-3" -> "2013 fall"
+          	//"2013 spring"->"2013-1",
+          	//"2013 summer"->"2013-2",
+          	//"2013 fall"->"2013-3"
+          	),
           '_label -> "Quarter")
           
 @helper.inputRadioGroup(
@@ -66,10 +72,10 @@
 <td><h4>Edit</h4></td>
 </tr>
 
-@for((yearAndQuarter, status) <- employmentHistory.history.toList.sortBy(_._1.toSortable)) {
+@for((yearAndQuarter, employmentStatus) <- employmentHistory.history.toList.sortBy(_._1.toSortable)) {
 <tr>
 <td>@yearAndQuarter.prettyString</td>
-<td>@status.prettyString</td>
+<td>@employmentStatus.status</td>
 <td><button type="button" class="btn btn-danger" onclick="location.href='@fftsite.controllers.routes.FFTSite.getDeleteEmploymentHistory(yearAndQuarter.toString)'">Delete</button></td>
 </tr>
 }

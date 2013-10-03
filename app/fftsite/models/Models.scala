@@ -35,16 +35,20 @@ case class YearAndQuarter(
   def toSortable = year * 10 + quarter
 }
 
-sealed trait EmploymentStatus { def prettyString: String }
-object Student extends EmploymentStatus {
-  override def prettyString = "Student"
+case class EmploymentStatus(status: String) {
+  assert(status == "Student" || status == "Employee" || status == "Neither")
 }
-object Employee extends EmploymentStatus {
-  override def prettyString = "Employee"
-}
-object Neither extends EmploymentStatus {
-  override def prettyString = "Neither"
-}
+
+//sealed trait EmploymentStatus { def prettyString: String }
+//object Student extends EmploymentStatus {
+//  override def prettyString = "Student"
+//}
+//object Employee extends EmploymentStatus {
+//  override def prettyString = "Employee"
+//}
+//object Neither extends EmploymentStatus {
+//  override def prettyString = "Neither"
+//}
 
 case class UserInformation(
   studentID: Option[String],

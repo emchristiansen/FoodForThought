@@ -15,8 +15,8 @@ object ApplicationBuild extends Build {
     "com.typesafe.slick" %% "slick" % "1.0.1",
     "st.sparse" %% "persistent-map" % "0.1-SNAPSHOT",
     "emchristiansen" %% "scalatest-extra" % "0.3-SNAPSHOT",
-    //    "org.jumpmind.symmetric.jdbc" % "mariadb-java-client" % "1.1.1",
-    "org.xerial" % "sqlite-jdbc" % "3.7.2",
+    "org.jumpmind.symmetric.jdbc" % "mariadb-java-client" % "1.1.1",
+    //    "org.xerial" % "sqlite-jdbc" % "3.7.2",
     "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT",
     "securesocial" %% "securesocial" % "master-2.2-SNAPSHOT")
 
