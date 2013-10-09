@@ -31,7 +31,7 @@ import play.api.Play.current
 
 import models.Models._
 
-import scalatestextra._
+import st.sparse.sundry._
 
 /**
  * A Sample In Memory user service in Scala
