@@ -1,0 +1,18 @@
+language: scala
+
+jdk:
+   - oraclejdk7
+
+before_install:
+  - sudo apt-get update
+
+install:
+  - git clone https://github.com/emchristiansen/securesocial.git
+  - cd securesocial/module-code
+  - git fetch origin
+  - git checkout -b play-2.2 origin/play-2.2
+  - sbt publishLocal
+
+script:
+  - sbt compile
+
