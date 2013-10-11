@@ -43,11 +43,10 @@ object CustomRegistration extends Controller {
   import securesocial.controllers.Registration._
 
   val customEmail: Mapping[String] = email verifying (nonEmpty) verifying (
-    "Address must be @cs.ucsd.edu, @eng.ucsd.edu, or @ucsd.edu",
+    "Address must be on whitelist. Email Eric to have it added.",
     e =>
-      e.contains("@cs.ucsd.edu") ||
-        e.contains("@eng.ucsd.edu") ||
-        e.contains("@ucsd.edu"))
+      val whitelist = FFTSite.loadConfigAsString("emailWhitelist.txt")
+      whitelist.contains(e))
 
   val startForm = Form(
     Email -> customEmail)

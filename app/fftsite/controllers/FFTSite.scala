@@ -40,6 +40,13 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
     scala.io.Source.fromFile(file).mkString
   }
 
+  def loadConfigAsString(resource: String): String = {
+    val file = new File(new File(new File(Play.application.path.getPath), "/conf/"), resource)
+
+    //    val file = getClass.getResource(resource).getFile
+    scala.io.Source.fromFile(file).mkString
+  }
+
   def markdownToHTML(markdown: String) =
     Html(new org.pegdown.PegDownProcessor().markdownToHtml(markdown))
 
@@ -135,7 +142,7 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
             YearAndQuarter(year.toInt, quarter.toInt)
           }
           val employmentStatus = EmploymentStatus(employmentStatusString)
-          
+
           val current = employmentHistory(user.identityId)
           Models.employmentHistory(user.identityId) = EmploymentHistory(
             current.history + (employmentQuarter -> employmentStatus))
