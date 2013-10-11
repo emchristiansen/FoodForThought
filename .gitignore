@@ -17,7 +17,6 @@ dist
 *#*
 *DS_Store
 public/receipts/
-secrets.conf
 .cache
 .target/
 bin/

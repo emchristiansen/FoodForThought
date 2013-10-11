@@ -13,6 +13,9 @@ install:
   - git checkout -b play-2.2 origin/play-2.2
   - sbt publishLocal
 
+before_script:
+  - mysql -e 'create database FFTSite;'
+
 script:
-  - sbt compile
+  - sbt test
 
