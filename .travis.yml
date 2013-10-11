@@ -17,5 +17,7 @@ before_script:
   - mysql -e 'create database FFTSite;'
 
 script:
-  - sbt test
+  - (sbt "~run" &)
+  - sleep 60
+  - curl localhost:9000
 

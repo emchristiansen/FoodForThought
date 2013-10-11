@@ -1,44 +1,42 @@
 @(employmentHistory: fftsite.models.EmploymentHistory,
-	profileForm: Form[(fftsite.models.UserInformation, Option[String], Option[String], fftsite.models.DietaryInformation, Boolean)])(implicit request: RequestHeader)
+	profileForm: Form[(fftsite.models.UserInformation, Option[String], Option[String], fftsite.models.DietaryInformation, Boolean)])(
+	  implicit request: RequestHeader)
 
-@fftsite.views.html.main("Profile") {
-	    
-        <h2>Profile</h2>
-        
-        You must complete this page before you can sign up to eat.
+@fftsite.views.html.main("Profile") {  
+  <h2>Profile</h2>
+  You must complete this page before you can sign up to eat.
     	
   @helper.form(action = fftsite.controllers.routes.FFTSite.postProfile) {
+    <h3>Dietary information</h3>
 
-<h3>Dietary information</h3>
-
-   <p>We'll use this to make sure you eat what you like.</p>
+    <p>We'll use this to make sure you eat what you like.</p>
 
     @helper.inputText(profileForm("dietaryInformation.restrictions"),
     	'_label -> "Dietary restrictions" 
     )
-    
+   
     @helper.inputText(profileForm("dietaryInformation.preferences"),
     	'_label -> "Dietary preferences" 
     )
-    
+   
     @helper.textarea(profileForm("dietaryInformation.additionalNotes"),
     	'_label -> "Additional notes" 
     )
 
-<h3>User information</h3>
-	
-	<p>Please provide either your student ID or your employee ID. UCSD needs this information for its bookkeeping.</p>
+    <h3>User information</h3>
+
+  	<p>Please provide either your student ID or your employee ID. UCSD needs this information for its bookkeeping.</p>
 
     @helper.inputText(profileForm("userInformation.studentID"),
     	'_label -> "UCSD Student ID" 
     )
-    
+   
     @helper.inputText(profileForm("userInformation.employeeID"),
     	'_label -> "UCSD Employee ID"
     )
-    
- <h3>Employment history</h3>
-    
+  
+    <h3>Employment history</h3>
+  
     <p>For each quarter you have participated in Food for Thought, please add your employment type at UCSD.
     (You may have to submit the form several times, I'm new to this).
     If you were a TA, select the "Student" status.
@@ -46,53 +44,49 @@
     Our record of your employment status is displayed below.</p>
 
     @helper.inputRadioGroup(
-          profileForm("employmentQuarter"),
-          options = helper.options(
-          	"2013-1" -> "2013 spring",
-          	"2013-2" -> "2013 summer",
-          	"2013-3" -> "2013 fall"
-          	//"2013 spring"->"2013-1",
-          	//"2013 summer"->"2013-2",
-          	//"2013 fall"->"2013-3"
-          	),
-          '_label -> "Quarter")
-          
-@helper.inputRadioGroup(
-          profileForm("employmentStatus"),
-          options = helper.options(
-          	"Student"->"Student",
-          	"Employee"->"Employee",
-          	"Neither"->"Neither"),
-          '_label -> "Employment status")          
+      profileForm("employmentQuarter"),
+      options = helper.options(
+      	"2013-1" -> "2013 spring",
+      	"2013-2" -> "2013 summer",
+      	"2013-3" -> "2013 fall"
+      	),
+      '_label -> "Quarter")
+        
+    @helper.inputRadioGroup(
+     profileForm("employmentStatus"),
+     options = helper.options(
+     	"Student"->"Student",
+     	"Employee"->"Employee",
+     	"Neither"->"Neither"),
+     '_label -> "Employment status")          
 
-<table class="table"> 
-<tr>
-<td><h4>Quarter</h4></td>
-<td><h4>Employment status</h4></td>
-<td><h4>Edit</h4></td>
-</tr>
+	<table class="table"> 
+		<tr>
+			<td><h4>Quarter</h4></td>
+			<td><h4>Employment status</h4></td>
+			<td><h4>Edit</h4></td>
+		</tr>
 
-@for((yearAndQuarter, employmentStatus) <- employmentHistory.history.toList.sortBy(_._1.toSortable)) {
-<tr>
-<td>@yearAndQuarter.prettyString</td>
-<td>@employmentStatus.status</td>
-<td><button type="button" class="btn btn-danger" onclick="location.href='@fftsite.controllers.routes.FFTSite.getDeleteEmploymentHistory(yearAndQuarter.toString)'">Delete</button></td>
-</tr>
-}
-</table>
+		@for((yearAndQuarter, employmentStatus) <- employmentHistory.history.toList.sortBy(_._1.toSortable)) {
+		<tr>
+			<td>@yearAndQuarter.prettyString</td>
+			<td>@employmentStatus.status</td>
+			<td><button type="button" class="btn btn-danger" onclick="location.href='@fftsite.controllers.routes.FFTSite.getDeleteEmploymentHistory(yearAndQuarter.toString)'">Delete</button></td>
+		</tr>
+		}
+	</table>
 
-<h3>Consent to be taxed</h3>
+    <h3>Consent to be taxed</h3>
 
-UCSD will likely treat Food for Thought as a taxable benefit.
-This means that if you are an employee, you will likely need to pay tax on the food you eat (assessed on a quarter-by-quarter basis).
-If you are a student, you probably will not need to pay taxes, but there are no guarantees.
+	UCSD will likely treat Food for Thought as a taxable benefit.
+	This means that if you are an employee, you will likely need to pay tax on the food you eat (assessed on a quarter-by-quarter basis).
+	If you are a student, you probably will not need to pay taxes, but there are no guarantees.
+	
+    @helper.checkbox(profileForm("consent"), '_label -> "I understand and consent. (Required)", '_help -> "")
 
-@helper.checkbox(profileForm("consent"), '_label -> "I understand and consent. (Required)", '_help -> "")
-
-<div class="form-actions">
-<button type="submit" class="btn btn-primary">Save</button>
-<a class="btn" href="@fftsite.controllers.routes.FFTSite.getProfile">Cancel</a>
-</div>
-
-}
+	<div class="form-actions">
+		<button type="submit" class="btn btn-primary">Save</button>
+		<a class="btn" href="@fftsite.controllers.routes.FFTSite.getProfile">Cancel</a>
+	</div>
+  }
 }
