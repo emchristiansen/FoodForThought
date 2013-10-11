@@ -15,9 +15,13 @@ near future.
 
 ##Hacking
 
-This project currently needs a custom version of
-[SecureSocial](https://github.com/jaliss/securesocial).
+The site is built with [sbt](https://github.com/paulp/sbt-extras).
+To run, `cd` to the root directory and run `sbt run`.
+
+This project currently needs a custom version of [SecureSocial](https://github.com/jaliss/securesocial).
 See `.travis.yml` to see how it should be installed.
+Travis CI instances run Ubuntu 12.04, and fully specify what is required to get the project running.
+Note that we are using the `sbt` and `mysql` installations that come stock on Travis CI instances.
 
 For the site to actually run, you will need to:
 
