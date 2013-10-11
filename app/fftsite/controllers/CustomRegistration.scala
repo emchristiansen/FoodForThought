@@ -44,9 +44,10 @@ object CustomRegistration extends Controller {
 
   val customEmail: Mapping[String] = email verifying (nonEmpty) verifying (
     "Address must be on whitelist. Email Eric to have it added.",
-    e =>
+    e => {
       val whitelist = FFTSite.loadConfigAsString("emailWhitelist.txt")
-      whitelist.contains(e))
+      whitelist.contains(e)
+    })
 
   val startForm = Form(
     Email -> customEmail)
