@@ -15,31 +15,30 @@ near future.
 
 ##Hacking
 
-This project currently needs a custom version of
-[SecureSocial](https://github.com/jaliss/securesocial).
+The site is built with [sbt](https://github.com/paulp/sbt-extras).
+To run, `cd` to the root directory and run `sbt run`.
+
+This project currently needs a custom version of [SecureSocial](https://github.com/jaliss/securesocial).
 See `.travis.yml` to see how it should be installed.
+Travis CI instances run Ubuntu 12.04, and fully specify what is required to get the project running.
+Note that we are using the `sbt` and `mysql` installations that come stock on Travis CI instances.
 
 For the site to actually run, you will need to:
 
-  * Start up a database and make the jdbc url in `conf/secrets.conf`
-    point to it.
+  * Start up a database and make the jdbc url in `conf/secrets.conf` point to it.
     See the database config section.
-  * Get the GMail password from Eric to allow the site to send emails.
+  * Get the GMail password from Eric and put it in `conf/secrets.conf`.
+    This will allow the site to send emails.
 
 ###Database config
 
-If you want to use MariaDB and you're on Ubuntu, you can follow these
-directions to get up and running:
+If you want to use MariaDB and you're on Ubuntu, you can follow these directions to get up and running:
 
-  * [Install
-    MariaDB](http://askubuntu.com/questions/64772/how-to-install-mariadb).
-  * Log into the running MariaDB server with the command `mysql
-    --user=root --password=<your password>`.
-  * Create the FFTSite database by running the command `create database
-    FFTSite;`.
+  * [Install MariaDB](http://askubuntu.com/questions/64772/how-to-install-mariadb).
+  * Log into the running MariaDB server with the command `mysql --user=root --password=<your password>`.
+  * Create the FFTSite database by running the command `create database FFTSite;`.
   * Log out of the MariaDB console.
-  * Edit conf/secrets.conf so the database configuration line looks
-    like: `db.default.url="jdbc:mariadb://localhost:3306/FFTSite?user=root&password=<your password>"`
+  * Edit conf/secrets.conf so the database configuration line looks like: `db.default.url="jdbc:mariadb://localhost:3306/FFTSite?user=root&password=<your password>"`.
 
 [![Build Status](https://travis-ci.org/emchristiansen/FoodForThoughtSite.png)](https://travis-ci.org/emchristiansen/FoodForThoughtSite)
 

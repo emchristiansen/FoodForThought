@@ -21,3 +21,4 @@ public/receipts/
 .target/
 bin/
 *.production.conf
+secrets.conf
