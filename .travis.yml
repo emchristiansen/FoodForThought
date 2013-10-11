@@ -18,6 +18,6 @@ before_script:
 
 script:
   - (sbt "~run" &)
-  - sleep 60
+  - sleep 30
   - curl localhost:9000
 

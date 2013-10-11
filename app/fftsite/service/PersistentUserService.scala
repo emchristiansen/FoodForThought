@@ -65,9 +65,6 @@ class PersistentUserService(application: Application) extends UserServicePlugin(
     
     users += (socialUser.identityId -> socialUser)
 
-    // this sample returns the same user object, but you could return an instance of your own class
-    // here as long as it implements the Identity trait. This will allow you to use your own class in the protected
-    // actions and event callbacks. The same goes for the find(id: UserId) method.
     socialUser
   }
 

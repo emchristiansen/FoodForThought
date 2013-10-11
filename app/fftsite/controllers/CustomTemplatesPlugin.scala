@@ -34,24 +34,6 @@ class CustomTemplatesPlugin(application: Application) extends TemplatesPlugin {
     implicit request: Request[A],
     form: Form[String]): Html = {
     views.html.customss.Registration.startSignUp(form)
-//    // This is a total hack to enable us to use our own form.
-//    val activeForm =
-//      if (form == securesocial.controllers.Registration.startForm) {
-//        println("first branch")
-//        Application.customStartSignUpForm
-//      } else {
-//        println("second branch")
-//        form
-//      }
-//        
-//
-//    // We are ignoring the passed-in form, using our custom one instead.
-//    //    views.html.customss.Registration.startSignUp(Application.customStartSignUpForm)
-//    //    println(form)
-//    //    println(securesocial.controllers.Registration.startForm)
-//    //    assert(form == securesocial.controllers.Registration.startForm)
-//    //    views.html.customss.Registration.startSignUp(form)
-//    views.html.customss.Registration.startSignUp(activeForm)
   }
 
   override def getStartResetPasswordPage[A](

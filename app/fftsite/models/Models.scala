@@ -38,17 +38,6 @@ case class EmploymentStatus(status: String) {
   assert(status == "Student" || status == "Employee" || status == "Neither")
 }
 
-//sealed trait EmploymentStatus { def prettyString: String }
-//object Student extends EmploymentStatus {
-//  override def prettyString = "Student"
-//}
-//object Employee extends EmploymentStatus {
-//  override def prettyString = "Employee"
-//}
-//object Neither extends EmploymentStatus {
-//  override def prettyString = "Neither"
-//}
-
 case class UserInformation(
   studentID: Option[String],
   employeeID: Option[String])
@@ -88,8 +77,6 @@ object Models {
 
   val freshFoodSignUp =
     PersistentMap.connectElseCreate[LocalDate, IdentityId]("freshFoodSignUp", database)
-  //  val stockedFoodSignUp =
-  //    PersistentMap.connectElseCreate[LocalDate, IdentityId]("stockedFoodSignUp", database)
   val cleaningSignUp =
     PersistentMap.connectElseCreate[LocalDate, IdentityId]("cleaningSignUp", database)
 
@@ -98,8 +85,4 @@ object Models {
 
   val reimbursementRequests =
     PersistentMap.connectElseCreate[IdentityId, Set[ReimbursementRequest]]("reimbursementRequests", database)
-}
-
-trait PicklerImplicits {
-
 }
