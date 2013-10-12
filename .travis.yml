@@ -12,13 +12,12 @@ install:
   - git fetch origin
   - git checkout -b play-2.2 origin/play-2.2
   - sbt publishLocal
+  - cd ../..
 
 before_script:
   - mysql -e 'create database FFTSite;'
 
 script:
-  - pwd
-  - find .
   - mv conf/secrets.travis.conf conf/secrets.conf
   - (sbt "~run" &)
   - sleep 30
