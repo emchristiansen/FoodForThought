@@ -20,6 +20,6 @@ before_script:
 script:
   - mv conf/secrets.travis.conf conf/secrets.conf
   - (sbt "~run" &)
-  - sleep 30
+  - sleep 60
   - curl localhost:9000
 
