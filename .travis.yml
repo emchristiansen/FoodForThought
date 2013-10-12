@@ -17,6 +17,8 @@ before_script:
   - mysql -e 'create database FFTSite;'
 
 script:
+  - pwd
+  - find .
   - mv conf/secrets.travis.conf conf/secrets.conf
   - (sbt "~run" &)
   - sleep 30
