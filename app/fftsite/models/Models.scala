@@ -60,6 +60,20 @@ case class ReimbursementRequest(
   reimbursementPart: ReimbursementPart,
   receiptPhotoName: String)
 
+case class ReportUserLineItem(
+  date: LocalDate,
+  mealsRequested: Int,
+  totalMealsRequested: Int,
+  totalAmount:BigDecimal,
+  individualAmount:String)
+  
+case class ReportUser(
+  user: SocialUser,
+  employmentStatus: String,
+  amount: BigDecimal,
+  amountStr: String,
+  lineItems: List[ReportUserLineItem])
+
 object Models {
   private val database = Database.forDataSource(DB.getDataSource("default"))
 
