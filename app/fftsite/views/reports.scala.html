@@ -1,0 +1,9 @@
+@(quarters:List[fftsite.models.YearAndQuarter])(implicit request: RequestHeader)
+
+@fftsite.views.html.main("Reports") {
+  <h3>hello world</h3>
+  @for(q <- quarters) {
+    <a href="/quarterReport?year=@q.year&quarter=@q.quarter">@q.prettyString <br />
+  }
+
+}
