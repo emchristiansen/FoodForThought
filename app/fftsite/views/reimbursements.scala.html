@@ -12,7 +12,15 @@
   	) {
 
     @helper.inputDate(reimbursementPartForm("date"), '_label -> "Date of purchase", '_help -> "")
-    @helper.inputText(reimbursementPartForm("expenseType"), '_label -> "Expense type, eg 'fresh food' or 'stocked food'", '_help -> "")
+    @helper.inputRadioGroup(
+reimbursementPartForm("expenseType"),
+options = helper.options(
+  "Fresh food"->"Fresh food",
+  "Stocked food"->"Stocked food",
+  "Other"->"Other"),
+'_label -> "Expense type",
+'_help -> "") 
+
     @helper.inputText(reimbursementPartForm("amount"), '_label -> "Reimbursement amount ($)", '_help -> "")
     
     @helper.inputFile(reimbursementPartForm("receiptPhoto"), '_label -> "Receipt photo or PDF")
