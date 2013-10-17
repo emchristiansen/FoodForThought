@@ -1,0 +1,40 @@
+@(yearAndQuarter:fftsite.models.YearAndQuarter,
+reportUsers:List[fftsite.models.ReportUser])(implicit request: RequestHeader)
+
+@fftsite.views.html.main("Reports") {
+<script type="text/javascript">
+function toggleLineItem(elem) {
+  if(elem.nextSibling.style.display=="none") {
+    elem.nextSibling.style.display="inline";
+  } else {
+    elem.nextSibling.style.display="none";
+  }
+}
+</script>
+  <h3>Cost report for @yearAndQuarter.prettyString</h3>
+<table class="table">
+  <tr>
+    <td>Name</td>
+    <td>Employment Status</td>
+    <td>Dollar amount for quarter</td>
+  </tr>
+
+  @for(reportUser <- reportUsers) {
+  <tr>
+  <td><a href="#" onclick="toggleLineItem(this); return false;">@reportUser.user.fullName</a><div style="display:none">
+  <table><tr><td>Date</td><td>Meals Requested</td><td>Total Meals Requested<br />on this day</td><td>Total Amount spent <br />on this day</td><td>Amount spent<br />on this user</tr>
+  @for(lineItem <- reportUser.lineItems) {
+  	<tr><td>@lineItem.date</td><td>@lineItem.mealsRequested</td><td>@lineItem.totalMealsRequested</td><td>@lineItem.totalAmount</td><td>@lineItem.individualAmount</tr>
+  }
+  </table>
+  </div>
+  </td>
+  <td>@reportUser.employmentStatus</td>
+  <td>@reportUser.amountStr</td>
+  </tr>	
+  }
+</table>
+
+}
+
+

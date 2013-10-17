@@ -20,6 +20,8 @@ GET    /reimbursements                            fftsite.controllers.FFTSite.ge
 POST   /reimbursements                            fftsite.controllers.FFTSite.postReimbursements
 GET    /deleteReimbursement/:uuid                 fftsite.controllers.FFTSite.getDeleteReimbursement(uuid: Long)
 GET    /today                                     fftsite.controllers.FFTSite.getToday
+GET    /reports                                   fftsite.controllers.FFTSite.getReports
+GET    /quarterReport                             fftsite.controllers.FFTSite.getQuarterReport(year:Int,quarter:Int)
 #GET    /test                     fftsite.controllers.FFTSite.getTest
 #POST   /test                     fftsite.controllers.FFTSite.postTest
 
