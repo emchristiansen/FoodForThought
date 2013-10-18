@@ -48,6 +48,11 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
     scala.io.Source.fromFile(file).mkString
   }
 
+  def dateToday = {
+    val timeZone = DateTimeZone.forID("America/Los_Angeles")
+    new LocalDate(timeZone)
+  }
+  
   def markdownToHTML(markdown: String) =
     Html(new org.pegdown.PegDownProcessor().markdownToHtml(markdown))
 
@@ -187,7 +192,7 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
     "meals" -> seq(number(0, 8))))
 
   def dates: Seq[LocalDate] = {
-    val today = new LocalDate
+    val today = dateToday
     val allFollowing = Stream.from(0) map (today.plusDays)
     // Filter out Saturdays and Sundays.
     // The week is 1-indexed, with 1 -> Monday.
@@ -397,104 +402,101 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
 
     Ok(views.html.today(date, freshFoodVolunteer, cleaningVolunteer, eaters.sortBy(_._1.firstName)))
   }
-  
-  def getReports = Action { implicit request => 
-    // there is probably a better way of getting a list of quarters
-    // for now hard coding to current quarter - 5 years
-  	val date = new LocalDate
-  	var quarters = List[YearAndQuarter]()
-  	for(y <- date.getYear() to date.getYear()-5 by -1) {
-  	  for(q <- 0 to 3) {
-  	    quarters:+=YearAndQuarter(y,q)
-  	  }
-  	}
-  	  
-    Ok(views.html.reports(quarters)) }
-    
-    
-  def getQuarterReport(year:Int,quarter:Int) = Action { implicit request =>
-  	val users = Models.users
-  	
-  	// find all reimbursement requests for this quarter
-  	// for now just use hard coded begin and end dates
-  	// very hacky, don't know how to work with immutable types yet
-	var beginMonth = 0
-  	if(quarter == 0) {
-  	  beginMonth = 1
-  	} else if(quarter == 1) {
-  	  beginMonth = 4
-  	} else if(quarter==2) {
-  	  beginMonth = 7
-  	} else {
-  	  beginMonth = 10
-  	}
-  	val beginDate = new LocalDate(year,beginMonth,1)
-  	val endDate = beginDate.plusMonths(3).minusDays(1)
-  	
-  	var quarterReimbursementRequests = List[ReimbursementPart]()
-  	for(reimbursementRequestSet <- Models.reimbursementRequests.values.toList) {
-  	  for(reimbursementRequest <- reimbursementRequestSet.toList) {
-  	    if(reimbursementRequest.reimbursementPart.date.compareTo(beginDate)>=0 && 
-  	      reimbursementRequest.reimbursementPart.date.compareTo(endDate) <=0 &&
-  	      reimbursementRequest.reimbursementPart.expenseType=="Fresh food") {
-  	      quarterReimbursementRequests:+=(reimbursementRequest.reimbursementPart)
-  	    }
-  	  }
-  	}
-  	// add up reimbursement requests per user
-  	var reportUsers = List[ReportUser]()
-  	//val writer = new PrintWriter(new File("fftdebug.log"))
-  	for(id <- Models.users.keySet) {
-  	  //writer.println("============================================================================")
-  	  //writer.println(id)
-  	  var amount = BigDecimal(0)
-  	  var date = beginDate
-  	  var lineItems = List[ReportUserLineItem]()
-  	  while(date.compareTo(endDate)!= 0) {
-  	    if(Models.mealsSignUp.contains(date)) {
-  	      val signUps = Models.mealsSignUp(date)
-  	      if(signUps.contains(id)) {
-  	        //writer.println("    found id")
-  	      	val numMeals = signUps(id)
-  	      	
-  	      	var totalMeals = 0
-  	      	for(n <- signUps.values.toList) {
-  	      	  totalMeals += n
-  	      	}
-  	      	
-  	      	// find receipt for that day  	      	
-  	      	for(reimbursementRequestPart <- quarterReimbursementRequests) {
-  	      	  if(date.compareTo(reimbursementRequestPart.date)==0 && numMeals > 0) {
-  	      	    val individualAmount = numMeals.toFloat / totalMeals.toFloat * reimbursementRequestPart.amount
-  	      	    val individualAmountStr = f"$individualAmount%.2f"
-  	      	    amount += individualAmount
-  	      	    //writer.println("      numMeals: " +numMeals+" totalmeals: " + totalMeals+" lineItemAmount: " + amount + " totalAmount: " +reimbursementRequestPart.amount)
-  	      	    lineItems:+=(ReportUserLineItem(date, numMeals, totalMeals, reimbursementRequestPart.amount, individualAmountStr))
-              }
-  	      	}
-  	      	
-  	      }
-  	    }
-  	    date = date.plusDays(1)
-  	  }
-  	  
-  	  if(amount > 0) {
-  	    var amountStr = f"$amount%2.2f"
-  	    var employmentType = "neither"
-  	    if(Models.employmentHistory.contains(id)) {
-  	      if(Models.employmentHistory(id).history.contains(YearAndQuarter(year, quarter))) {
-  	        employmentType = Models.employmentHistory(id).history(YearAndQuarter(year, quarter)).toString
-  	      }
-  	    }
-  	    var reportUser = ReportUser(Models.users(id),employmentType, amount, amountStr, lineItems)
-  	    reportUsers:+=(reportUser)
-  	    //writer.println(reportUsers)
-  	  }
-  	  
-  	}
-  	//writer.close()
 
-  	val yearAndQuarter = YearAndQuarter(year, quarter)
+  def getReports = Action { implicit request =>
+    // TODO: Use the quarters config file to generate a list of quarters between
+    // (2013, 1) and the current date.
+    val quarters = List(
+        (2013, 1),
+        (2013, 2),
+        (2013, 3)) map (YearAndQuarter.tupled)
+        
+    Ok(views.html.reports(quarters.reverse))
+  }
+
+  def getQuarterReport(year: Int, quarter: Int) = Action { implicit request =>
+    val users = Models.users
+
+    // find all reimbursement requests for this quarter
+    // for now just use hard coded begin and end dates
+    // very hacky, don't know how to work with immutable types yet
+    var beginMonth = 0
+    if (quarter == 0) {
+      beginMonth = 1
+    } else if (quarter == 1) {
+      beginMonth = 4
+    } else if (quarter == 2) {
+      beginMonth = 7
+    } else {
+      beginMonth = 10
+    }
+    val beginDate = new LocalDate(year, beginMonth, 1)
+    val endDate = beginDate.plusMonths(3).minusDays(1)
+
+    var quarterReimbursementRequests = List[ReimbursementPart]()
+    for (reimbursementRequestSet <- Models.reimbursementRequests.values.toList) {
+      for (reimbursementRequest <- reimbursementRequestSet.toList) {
+        if (reimbursementRequest.reimbursementPart.date.compareTo(beginDate) >= 0 &&
+          reimbursementRequest.reimbursementPart.date.compareTo(endDate) <= 0 &&
+          reimbursementRequest.reimbursementPart.expenseType == "Fresh food") {
+          quarterReimbursementRequests :+= (reimbursementRequest.reimbursementPart)
+        }
+      }
+    }
+    // add up reimbursement requests per user
+    var reportUsers = List[ReportUser]()
+    //val writer = new PrintWriter(new File("fftdebug.log"))
+    for (id <- Models.users.keySet) {
+      //writer.println("============================================================================")
+      //writer.println(id)
+      var amount = BigDecimal(0)
+      var date = beginDate
+      var lineItems = List[ReportUserLineItem]()
+      while (date.compareTo(endDate) != 0) {
+        if (Models.mealsSignUp.contains(date)) {
+          val signUps = Models.mealsSignUp(date)
+          if (signUps.contains(id)) {
+            //writer.println("    found id")
+            val numMeals = signUps(id)
+
+            var totalMeals = 0
+            for (n <- signUps.values.toList) {
+              totalMeals += n
+            }
+
+            // find receipt for that day  	      	
+            for (reimbursementRequestPart <- quarterReimbursementRequests) {
+              if (date.compareTo(reimbursementRequestPart.date) == 0 && numMeals > 0) {
+                val individualAmount = numMeals.toFloat / totalMeals.toFloat * reimbursementRequestPart.amount
+                val individualAmountStr = f"$individualAmount%.2f"
+                amount += individualAmount
+                //writer.println("      numMeals: " +numMeals+" totalmeals: " + totalMeals+" lineItemAmount: " + amount + " totalAmount: " +reimbursementRequestPart.amount)
+                lineItems :+= (ReportUserLineItem(date, numMeals, totalMeals, reimbursementRequestPart.amount, individualAmountStr))
+              }
+            }
+
+          }
+        }
+        date = date.plusDays(1)
+      }
+
+      if (amount > 0) {
+        var amountStr = f"$amount%2.2f"
+        var employmentType = "Not entered"
+        if (Models.employmentHistory.contains(id)) {
+          if (Models.employmentHistory(id).history.contains(YearAndQuarter(year, quarter))) {
+            employmentType = Models.employmentHistory(id).history(YearAndQuarter(year, quarter)).status
+          }
+        }
+        var reportUser = ReportUser(Models.users(id), employmentType, amount, amountStr, lineItems)
+        reportUsers :+= (reportUser)
+        //writer.println(reportUsers)
+      }
+
+    }
+    //writer.close()
+
+    val yearAndQuarter = YearAndQuarter(year, quarter)
     Ok(views.html.quarterReport(yearAndQuarter, reportUsers))
   }
 }
