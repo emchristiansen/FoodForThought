@@ -19,6 +19,7 @@ POST   /signups                                   fftsite.controllers.FFTSite.po
 GET    /reimbursements                            fftsite.controllers.FFTSite.getReimbursements
 POST   /reimbursements                            fftsite.controllers.FFTSite.postReimbursements
 GET    /deleteReimbursement/:uuid                 fftsite.controllers.FFTSite.getDeleteReimbursement(uuid: Long)
+GET    /reimbursementsAll                         fftsite.controllers.FFTSite.getReimbursementsAll
 GET    /today                                     fftsite.controllers.FFTSite.getToday
 GET    /reports                                   fftsite.controllers.FFTSite.getReports
 GET    /quarterReport                             fftsite.controllers.FFTSite.getQuarterReport(year:Int,quarter:Int)

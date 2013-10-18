@@ -3,11 +3,11 @@ profileForm: Form[(fftsite.models.UserInformation, Option[String], Option[String
   implicit request: RequestHeader)
 
 @fftsite.views.html.main("Profile") {  
-<h2>Profile</h2>
+<h1>Profile</h1>
 You must complete this page before you can sign up to eat.
   	
 @helper.form(action = fftsite.controllers.routes.FFTSite.postProfile) {
-<h3>Dietary information</h3>
+<h2>Dietary information</h2>
 
 <p>We'll use this to make sure you eat what you like.</p>
 
@@ -23,7 +23,7 @@ You must complete this page before you can sign up to eat.
 	'_label -> "Additional notes" 
 )
 
- <h3>User information</h3>
+ <h2>User information</h2>
 
 <p>Please provide either your student ID or your employee ID. UCSD needs this information for its bookkeeping.</p>
 
@@ -35,7 +35,7 @@ You must complete this page before you can sign up to eat.
 	'_label -> "UCSD Employee ID"
 )
 
-<h3>Employment history</h3>
+<h2>Employment history</h2>
 
 <p>For each quarter you have participated in Food for Thought, please add your employment type at UCSD.
 (You may have to submit the form several times, I'm new to this).
@@ -76,7 +76,7 @@ options = helper.options(
 }
 </table>
 
-   <h3>Consent to be taxed</h3>
+   <h2>Consent to be taxed</h2>
 
 <p>
 UCSD will likely treat Food for Thought as a taxable benefit.

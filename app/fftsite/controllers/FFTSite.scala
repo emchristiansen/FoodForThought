@@ -52,7 +52,7 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
     val timeZone = DateTimeZone.forID("America/Los_Angeles")
     new LocalDate(timeZone)
   }
-  
+
   def markdownToHTML(markdown: String) =
     Html(new org.pegdown.PegDownProcessor().markdownToHtml(markdown))
 
@@ -343,6 +343,18 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
     //      reimbursementPartForm))
   }
 
+  def getReimbursementsAll = Action { implicit request =>
+    val reimbursements = Models.reimbursementRequests.toList
+    val flattened = reimbursements.flatMap {
+      case (identityId, requests) => {
+        val user = Models.users(identityId)
+        requests map ((user, _))
+      }
+    }
+
+    Ok(views.html.reimbursementsAll(flattened))
+  }
+
   def postReimbursements = UserAwareAction(parse.multipartFormData) { implicit request =>
     if (!request.user.isDefined) {
       Redirect(fftsite.controllers.routes.FFTSite.getReimbursements)
@@ -407,10 +419,10 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
     // TODO: Use the quarters config file to generate a list of quarters between
     // (2013, 1) and the current date.
     val quarters = List(
-        (2013, 1),
-        (2013, 2),
-        (2013, 3)) map (YearAndQuarter.tupled)
-        
+      (2013, 1),
+      (2013, 2),
+      (2013, 3)) map (YearAndQuarter.tupled)
+
     Ok(views.html.reports(quarters.reverse))
   }
 

@@ -4,19 +4,21 @@
 	eaters: Seq[(securesocial.core.SocialUser, Int, Option[fftsite.models.DietaryInformation])])(implicit request: RequestHeader)
 
 @fftsite.views.html.main("Today") {
-  <h3>Date: @localDate.toString</h3>
+  <h1>Fresh food eaters today</h1>
+  
+  <h2>Date: @localDate.toString</h2>
   
 	<hr>
 	
-  <h3>Food fetcher: @foodFetcher.map(_.fullName).getOrElse("No volunteer!")</h3>
+  <h2>Food fetcher: @foodFetcher.map(_.fullName).getOrElse("No volunteer!")</h2>
   
   <hr>
   
-  <h3>Neat freak: @neatFreak.map(_.fullName).getOrElse("No volunteer!")</h3>
+  <h2>Neat freak: @neatFreak.map(_.fullName).getOrElse("No volunteer!")</h2>
   
   <hr>
   
-  <h3>Number of fresh meals: @eaters.map(_._2).sum</h3>
+  <h2>Number of fresh meals: @eaters.map(_._2).sum</h2>
   
   <table class="table"> 
   <tr>

@@ -1,0 +1,36 @@
+@(reimbursementRequests: Seq[(securesocial.core.SocialUser, fftsite.models.ReimbursementRequest)])(implicit request: RequestHeader)
+
+@fftsite.views.html.main("Reimbursements") {
+      
+<h1>All reimbursement requests</h1>      
+
+<p>
+The total cost so far has been $@{f"${reimbursementRequests.map(_._2.reimbursementPart.amount).sum}%.2f"}.
+</p>
+
+<p>
+See below for a list of all reimbursement requests.
+</p>
+
+<table class="table"> 
+<tr>
+<td><h4>Date</h4></td>
+<td><h4>User</h4></td>
+<td><h4>Expense type</h4></td>
+<td><h4>Amount ($)</h4></td>
+<td><h4>Photo</h4></td>
+<td><h4>Notes</h4></td>
+</tr>
+
+@for((user, request) <- reimbursementRequests.sortBy(_._2.reimbursementPart.date.toString).reverse) {
+<tr>
+<td>@request.reimbursementPart.date.toString</td>
+<td>@user.fullName</td>
+<td>@request.reimbursementPart.expenseType.toString</td>
+<td>@request.reimbursementPart.amount.toString</td>
+<td><a href=@controllers.routes.Assets.at(s"receipts/${request.receiptPhotoName}")>Link</a></td>
+<td>@request.reimbursementPart.notes.toString</td>
+</tr>
+}
+</table>
+}
