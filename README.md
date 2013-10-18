@@ -40,7 +40,7 @@ If you want to use MariaDB and you're on Ubuntu, you can follow these directions
   * Log out of the MariaDB console.
   * Edit conf/secrets.conf so the database configuration line looks like: `db.default.url="jdbc:mariadb://localhost:3306/FFTSite?user=root&password=<your password>"`.
 
-[![Build Status](http://travis-ci.org/emchristiansen/FoodForThoughtSite.png)](http://travis-ci.org/emchristiansen/FoodForThoughtSite)
+[![Build Status](https://travis-ci.org/emchristiansen/FoodForThoughtSite.png)](https://travis-ci.org/emchristiansen/FoodForThoughtSite)
 
 ##TODO
 
