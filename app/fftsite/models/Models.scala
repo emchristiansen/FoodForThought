@@ -34,6 +34,10 @@ case class YearAndQuarter(
   def toSortable = year * 10 + quarter
 }
 
+case class QuarterDates(
+  beginDate:LocalDate,
+  endDate:LocalDate)
+
 case class EmploymentStatus(status: String) {
   assert(status == "Student" || status == "Employee" || status == "Neither")
 }
