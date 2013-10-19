@@ -451,7 +451,7 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
     }
 
 
-    Ok(views.html.reports(quarters.toList))
+    Ok(views.html.reports(quarters.toList.sortWith((a,b) => (a.toSortable < b.toSortable))))
   }
 
   def getQuarterReport(year: Int, quarter: Int) = Action { implicit request =>
