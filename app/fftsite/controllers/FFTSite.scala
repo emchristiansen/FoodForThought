@@ -49,14 +49,14 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
     scala.io.Source.fromFile(file).mkString
   }
 
-  def getQuarterDates:Map[YearAndQuarter,QuarterDates] = {
-    val quartersStr =loadConfigAsString("quarters.conf");
+  def getQuarterDates: Map[YearAndQuarter, QuarterDates] = {
+    val quartersStr = loadConfigAsString("quarters.conf");
     val lines = quartersStr.split("\n")
-    var quarterDates = Map[YearAndQuarter,QuarterDates]()
-    for(line <- lines) {
+    var quarterDates = Map[YearAndQuarter, QuarterDates]()
+    for (line <- lines) {
       val vals = line.split(",")
       val quarter = YearAndQuarter(vals(0).toInt,
-        vals(1) match { case "winter" => 0; case "spring" => 1; case "summer" => 2; case "fall" => 3})
+        vals(1) match { case "winter" => 0; case "spring" => 1; case "summer" => 2; case "fall" => 3 })
       quarterDates.+=(quarter -> QuarterDates(new LocalDate(vals(2)), new LocalDate(vals(3))))
 
     }
@@ -435,13 +435,12 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
     // (2013, 1) and the current date.
     var quarterDates = getQuarterDates
 
-
     // find quarters with data
     var quarters = Set[YearAndQuarter]()
-    for(reimbursements <- Models.reimbursementRequests.values.toList) {
-      for(reimbursement <- reimbursements.toList) {
-        for(quarter <- quarterDates.keys) {
-          if(reimbursement.reimbursementPart.date.compareTo(quarterDates(quarter).beginDate) >= 0 &&
+    for (reimbursements <- Models.reimbursementRequests.values.toList) {
+      for (reimbursement <- reimbursements.toList) {
+        for (quarter <- quarterDates.keys) {
+          if (reimbursement.reimbursementPart.date.compareTo(quarterDates(quarter).beginDate) >= 0 &&
             reimbursement.reimbursementPart.date.compareTo(quarterDates(quarter).endDate) <= 0) {
             quarters.+=(quarter)
             //break
@@ -450,8 +449,7 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
       }
     }
 
-
-    Ok(views.html.reports(quarters.toList.sortWith((a,b) => (a.toSortable < b.toSortable))))
+    Ok(views.html.reports(quarters.toList.sortBy(_.toSortable).reverse))
   }
 
   def getQuarterReport(year: Int, quarter: Int) = Action { implicit request =>
