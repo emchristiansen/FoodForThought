@@ -30,6 +30,7 @@ import st.sparse.sundry._
 import st.sparse.persistentmap._
 import st.sparse.persistentmap.CustomPicklers._
 import scala.math.round
+import scala.util.control.Breaks._
 
 object FFTSite extends Controller with securesocial.core.SecureSocial {
   val updateSaved = "fftUpdateSaved"
@@ -46,6 +47,20 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
 
     //    val file = getClass.getResource(resource).getFile
     scala.io.Source.fromFile(file).mkString
+  }
+
+  def getQuarterDates:Map[YearAndQuarter,QuarterDates] = {
+    val quartersStr =loadConfigAsString("quarters.conf");
+    val lines = quartersStr.split("\n")
+    var quarterDates = Map[YearAndQuarter,QuarterDates]()
+    for(line <- lines) {
+      val vals = line.split(",")
+      val quarter = YearAndQuarter(vals(0).toInt,
+        vals(1) match { case "winter" => 0; case "spring" => 1; case "summer" => 2; case "fall" => 3})
+      quarterDates.+=(quarter -> QuarterDates(new LocalDate(vals(2)), new LocalDate(vals(3))))
+
+    }
+    return quarterDates
   }
 
   def dateToday = {
@@ -418,32 +433,33 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
   def getReports = Action { implicit request =>
     // TODO: Use the quarters config file to generate a list of quarters between
     // (2013, 1) and the current date.
-    val quarters = List(
-      (2013, 1),
-      (2013, 2),
-      (2013, 3)) map (YearAndQuarter.tupled)
+    var quarterDates = getQuarterDates
 
-    Ok(views.html.reports(quarters.reverse))
+
+    // find quarters with data
+    var quarters = Set[YearAndQuarter]()
+    for(reimbursements <- Models.reimbursementRequests.values.toList) {
+      for(reimbursement <- reimbursements.toList) {
+        for(quarter <- quarterDates.keys) {
+          if(reimbursement.reimbursementPart.date.compareTo(quarterDates(quarter).beginDate) >= 0 &&
+            reimbursement.reimbursementPart.date.compareTo(quarterDates(quarter).endDate) <= 0) {
+            quarters.+=(quarter)
+            //break
+          }
+        }
+      }
+    }
+
+
+    Ok(views.html.reports(quarters.toList.sortWith((a,b) => (a.toSortable < b.toSortable))))
   }
 
   def getQuarterReport(year: Int, quarter: Int) = Action { implicit request =>
     val users = Models.users
-
+    val quarterDates = getQuarterDates
+    val beginDate = quarterDates(YearAndQuarter(year, quarter)).beginDate
+    val endDate = quarterDates(YearAndQuarter(year, quarter)).endDate
     // find all reimbursement requests for this quarter
-    // for now just use hard coded begin and end dates
-    // very hacky, don't know how to work with immutable types yet
-    var beginMonth = 0
-    if (quarter == 0) {
-      beginMonth = 1
-    } else if (quarter == 1) {
-      beginMonth = 4
-    } else if (quarter == 2) {
-      beginMonth = 7
-    } else {
-      beginMonth = 10
-    }
-    val beginDate = new LocalDate(year, beginMonth, 1)
-    val endDate = beginDate.plusMonths(3).minusDays(1)
 
     var quarterReimbursementRequests = List[ReimbursementPart]()
     for (reimbursementRequestSet <- Models.reimbursementRequests.values.toList) {
