@@ -385,7 +385,7 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
           value => {
             val storageFile = File.createTempFile(
               "receipt",
-              picture.filename,
+              picture.filename.filter(_.isLetterOrDigit),
               new File(new File(Play.application.path.getPath), "/public/receipts"))
 
             picture.ref.moveTo(storageFile, true)
