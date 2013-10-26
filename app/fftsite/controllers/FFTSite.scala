@@ -377,6 +377,14 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
 
       val user: SocialUser = request.user.get.asInstanceOf[SocialUser]
 
+      def cleanFilename(string: String): String = {
+        string.zipWithIndex map {
+          case (' ', i) => '_'
+          case ('.', i) if i < string.lastIndexOf('.') => '_'
+          case (e, i) => e
+        } mkString
+      }
+
       request.body.file("receiptPhoto").map { picture =>
         reimbursementPartForm.bindFromRequest.fold(
           formWithErrors => BadRequest(views.html.reimbursements(
@@ -385,7 +393,7 @@ object FFTSite extends Controller with securesocial.core.SecureSocial {
           value => {
             val storageFile = File.createTempFile(
               "receipt",
-              picture.filename.filter(e => e.isLetterOrDigit || e == '.'),
+              cleanFilename(picture.filename),
               new File(new File(Play.application.path.getPath), "/public/receipts"))
 
             picture.ref.moveTo(storageFile, true)
